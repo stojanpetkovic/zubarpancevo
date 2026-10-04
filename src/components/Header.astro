@@ -8,7 +8,7 @@ import Icon from './Icon.astro';
 import Stars from './Stars.astro';
 import ServiceIcon from './ServiceIcon.astro';
 import SocialIcon from './SocialIcon.astro';
-import logo from '../assets/logo-eric-dental-centar.jpg';
+import logo from '../assets/logo-eric-dental-centar-transparent.png';
 
 interface Props {
   /** This page in each language, for the language switcher. */
@@ -124,7 +124,7 @@ const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
 <header class="site-header sticky top-0 z-40 border-b border-transparent bg-white/95 backdrop-blur">
   <div class:list={[shell, 'flex h-20 items-center gap-3 lg:h-24 lg:gap-8']}>
     <a href={home} class="shrink-0" aria-label={`${site.name}, ${t.nav.homeAria}`}>
-      <Image src={logo} alt={site.name} width={240} height={113} class="h-14 w-auto lg:h-[4.25rem]" loading="eager" />
+      <Image src={logo} alt={site.name} width={240} class="h-14 w-auto lg:h-[4.25rem]" loading="eager" />
     </a>
 
     <!-- Desktop -->
