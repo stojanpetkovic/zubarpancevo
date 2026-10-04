@@ -47,14 +47,14 @@ const crumbs = [
 
   <section class="section-pad">
     <div class="container-site grid gap-12 lg:grid-cols-[1.3fr_1fr]">
-      <div class="prose-site">
+      <div class="prose-site min-w-0">
         {a.body.map((p) => <p>{p}</p>)}
         <h2>{a.h2a}</h2>
         <p>{a.pa}</p>
         <h2>{a.h2b}</h2>
         <p>{a.pb}</p>
       </div>
-      <aside class="space-y-6">
+      <aside class="min-w-0 space-y-6">
         <div class="card bg-tint-2">
           <h2 class="text-xl">{t.common.hours}</h2>
           <Hours class="mt-4" />

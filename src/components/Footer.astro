@@ -181,8 +181,9 @@ const tile = 'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded
   </div>
 </footer>
 
-<!-- Phones: call and book always one tap away. -->
-<div class="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-2 border-t border-card bg-white p-2 shadow-[0_-4px_16px_rgb(0_0_0/0.06)] lg:hidden">
-  <a href={telHref} class="btn-outline px-4!"><Icon name="phone" class="h-5 w-5" />{t.common.call}</a>
-  <a href={bookingHref(locale)} class="btn-primary px-3! text-[15px]">{t.common.book}</a>
+<!-- Phones: call and book always one tap away. The call button is an icon only, so the
+     booking label fits on narrow screens in every language. -->
+<div class="fixed inset-x-0 bottom-0 z-40 grid grid-cols-[auto_1fr] gap-2 border-t border-card bg-white p-2 shadow-[0_-4px_16px_rgb(0_0_0/0.06)] lg:hidden">
+  <a href={telHref} class="btn-outline w-13 px-0!" aria-label={`${t.common.call}: ${site.phoneDisplayIntl}`}><Icon name="phone" class="h-5 w-5" /></a>
+  <a href={bookingHref(locale)} class="btn-primary min-w-0 px-3! text-[15px]">{t.common.book}</a>
 </div>

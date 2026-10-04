@@ -189,7 +189,7 @@ const q = locale === 'en' ? ['“', '”'] : locale === 'de' ? ['„', '“'] : 
   <section class="section-pad">
     <div class="container-site grid gap-10 lg:grid-cols-2 lg:gap-12">
       <!-- Questions -->
-      <div class="flex flex-col">
+      <div class="flex min-w-0 flex-col">
         <p class="eyebrow">{c.faqEyebrow}</p>
         <h2 class="mt-4 text-[clamp(1.6rem,1.1rem+2vw,2.25rem)] leading-tight">{c.faqTitle}</h2>
         <div class="mt-8 flex flex-col gap-3">
@@ -224,7 +224,7 @@ const q = locale === 'en' ? ['“', '”'] : locale === 'de' ? ['„', '“'] : 
       </div>
 
       <!-- Directions -->
-      <div class="flex flex-col">
+      <div class="flex min-w-0 flex-col">
         <p class="eyebrow">{c.locationEyebrow}</p>
         <h2 class="mt-4 text-[clamp(1.6rem,1.1rem+2vw,2.25rem)] leading-tight">{c.locationTitle}</h2>
         <ul class="mt-8 grid gap-3 sm:grid-cols-[1fr_1.25fr_1fr]">
@@ -236,7 +236,7 @@ const q = locale === 'en' ? ['“', '”'] : locale === 'de' ? ['„', '“'] : 
           <li class="rounded-2xl border border-card bg-white p-4">
             <Icon name="clock" class="h-5 w-5 text-brand-700" />
             <p class="mt-2 text-xs font-semibold">{t.common.hours}</p>
-            <p class="text-[15px] font-semibold whitespace-nowrap text-title">{t.common.weekdaysShort} {weekdays.opens}–{weekdays.closes}<br />{t.common.saturdayShort} {saturday.opens}–{saturday.closes}</p>
+            <p class="text-[15px] font-semibold text-title sm:whitespace-nowrap">{t.common.weekdaysShort} {weekdays.opens}–{weekdays.closes}<br />{t.common.saturdayShort} {saturday.opens}–{saturday.closes}</p>
           </li>
           <li class="rounded-2xl border border-card bg-white p-4">
             <Icon name="phone" class="h-5 w-5 text-brand-700" />

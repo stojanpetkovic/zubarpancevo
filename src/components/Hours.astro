@@ -15,7 +15,7 @@ const labels = [t.common.weekdays, t.common.saturday, t.common.sunday];
   {
     site.hours.map((h, i) => (
       <div class="flex justify-between gap-6">
-        <dt class="whitespace-nowrap">{labels[i]}</dt>
+        <dt>{labels[i]}</dt>
         <dd class="font-semibold whitespace-nowrap text-title">{h.opens ? `${h.opens} – ${h.closes}` : t.common.closed}</dd>
       </div>
     ))
