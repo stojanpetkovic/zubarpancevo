@@ -6,7 +6,7 @@ description: "What tartar is, why your toothbrush can’t remove it and how ofte
 date: 2023-10-19
 updated: 2026-10-03
 image: "../../../assets/blog/uklanjanje-kamenca.jpg"
-imageAlt: "A dentist cleaning a patient’s teeth at Erić Dental Centar"
+imageAlt: "Dr Miloš Erić treating a patient, wearing dental loupes"
 related: ["oralna-medicina-i-parodontologija", "estetska-stomatologija"]
 ---
 

@@ -1,6 +1,6 @@
 ---
 /*
- * The practice team, used on the homepage and on /o-nama/. The people are in
+ * The practice team (three people), used on the homepage and on /o-nama/. The people are in
  * config/team.ts, which the Person structured data on /o-nama/ also reads.
  */
 import { Image } from 'astro:assets';
@@ -22,40 +22,44 @@ const team = getTeam(locale);
 ---
 
 <section class="section-pad">
-  <div class="container-site grid gap-12 lg:grid-cols-[0.85fr_2fr] lg:gap-14">
-    <!-- Intro -->
-    <div class="flex flex-col lg:pt-4">
-      <p class="eyebrow">{t.team.eyebrow}</p>
-      <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">
-        {t.team.titleA}<span class="text-brand-700">{t.team.titleB}</span>
-      </h2>
-      <p class="mt-5 text-[clamp(1rem,0.9rem+0.4vw,1.125rem)] leading-[1.7]">
-        {t.team.lead}
-      </p>
-      <a href={site.rating.url} rel="noopener" target="_blank" class="card mt-8 flex w-fit items-center gap-4 rounded-2xl px-5! py-4!">
-        <span class="font-display text-3xl font-bold text-title">{site.rating.value}</span>
-        <span>
-          <Stars class="h-4 w-4" />
-          <span class="block text-sm">{t.common.patientRatings(site.rating.count)}</span>
-        </span>
-      </a>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href={bookingHref(locale)} class="btn-primary"><Icon name="calendar" class="h-5 w-5" /> {t.common.book}</a>
-        {aboutLink && <a href={pagePath(locale, 'about')} class="btn-outline">{t.common.aboutUs}</a>}
+  <div class="container-site flex flex-col gap-12">
+    <!-- Intro: heading on the left, rating and actions on the right -->
+    <div class="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:gap-14">
+      <div>
+        <p class="eyebrow">{t.team.eyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">
+          {t.team.titleA}<span class="text-brand-700">{t.team.titleB}</span>
+        </h2>
+        <p class="mt-5 max-w-2xl text-[clamp(1rem,0.9rem+0.4vw,1.125rem)] leading-[1.7]">
+          {t.team.lead}
+        </p>
+      </div>
+      <div class="flex flex-col gap-6 lg:items-end">
+        <a href={site.rating.url} rel="noopener" target="_blank" class="card flex w-fit items-center gap-4 rounded-2xl px-5! py-4!">
+          <span class="font-display text-3xl font-bold text-title">{site.rating.value}</span>
+          <span>
+            <Stars class="h-4 w-4" />
+            <span class="block text-sm">{t.common.patientRatings(site.rating.count)}</span>
+          </span>
+        </a>
+        <div class="flex flex-wrap gap-3 lg:justify-end">
+          <a href={bookingHref(locale)} class="btn-primary"><Icon name="calendar" class="h-5 w-5" /> {t.common.book}</a>
+          {aboutLink && <a href={pagePath(locale, 'about')} class="btn-outline">{t.common.aboutUs}</a>}
+        </div>
       </div>
     </div>
 
     <!-- People -->
-    <ul class="grid gap-6 sm:grid-cols-2">
+    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {
         team.map((m) => (
-          <li class="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-card bg-white shadow-[0_16px_40px_rgb(0_0_0/0.08)]">
+          <li class="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-card bg-white shadow-[0_16px_40px_rgb(0_0_0/0.08)] sm:max-lg:last:odd:col-span-2 sm:max-lg:last:odd:mx-auto sm:max-lg:last:odd:w-[calc(50%-0.75rem)]">
             <div class="relative isolate overflow-hidden">
               <Image
                 src={m.img}
                 alt={m.alt}
                 widths={[400, 600, 800]}
-                sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
+                sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
                 class="h-[22rem] w-full object-cover object-top transition duration-500 group-hover:scale-[1.03] motion-reduce:group-hover:scale-100 sm:h-[26rem]"
               />
               <div class="absolute inset-x-0 bottom-0 h-1/3 bg-linear-to-t from-brand-900/70 to-transparent" aria-hidden="true" />

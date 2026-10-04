@@ -5,7 +5,7 @@ description: "Šta je zubni kamenac, zašto ga četkica ne skida i koliko često
 date: 2023-10-19
 updated: 2026-10-03
 image: "../../../assets/blog/uklanjanje-kamenca.jpg"
-imageAlt: "Stomatološkinja čisti zube pacijentu u ordinaciji Erić Dental Centar"
+imageAlt: "dr Miloš Erić tokom tretmana pacijentkinje, sa stomatološkim lupama"
 related: ["oralna-medicina-i-parodontologija", "estetska-stomatologija"]
 ---
 

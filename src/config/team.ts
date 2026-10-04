@@ -2,6 +2,7 @@ import type { ImageMetadata } from 'astro';
 import type { Locale } from '../i18n/locales';
 import { useT } from '../i18n/ui';
 import drMilos from '../assets/tim/dr-milos-eric.jpg';
+import olga from '../assets/tim/dr-sci-olga-milosevic.jpg';
 import marina from '../assets/tim/marina-eric.jpg';
 
 /**
@@ -18,6 +19,14 @@ const people = [
     plainName: 'Miloš Erić',
     honorificPrefix: 'dr',
     icon: 'award',
+  },
+  {
+    id: 'olga',
+    img: olga,
+    name: { sr: 'dr sci. Olga Milošević', en: 'Dr Olga Milošević, PhD', de: 'Dr. sc. Olga Milošević' },
+    plainName: 'Olga Milošević',
+    honorificPrefix: 'dr sci.',
+    icon: 'microscope',
   },
   {
     id: 'marina',

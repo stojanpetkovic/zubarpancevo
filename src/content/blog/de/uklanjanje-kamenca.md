@@ -6,7 +6,7 @@ description: "Was Zahnstein ist, warum die Zahnbürste ihn nicht entfernt und wi
 date: 2023-10-19
 updated: 2026-10-03
 image: "../../../assets/blog/uklanjanje-kamenca.jpg"
-imageAlt: "Eine Zahnärztin reinigt einem Patienten die Zähne in der Praxis Erić Dental Centar"
+imageAlt: "Dr. Miloš Erić bei der Behandlung einer Patientin, mit Lupenbrille"
 related: ["oralna-medicina-i-parodontologija", "estetska-stomatologija"]
 ---
 
