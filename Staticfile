@@ -1,0 +1,6 @@
+# Railpack serves the built site with Caddy. By default it treats an Astro
+# build as a single-page app and answers every unknown path with index.html
+# and status 200, so missing pages became "soft 404s" for Google and
+# /llms.txt-style probes got the homepage. Unknown paths now return 404 with
+# dist/404.html. See https://railpack.com/languages/node
+index_fallback: false
