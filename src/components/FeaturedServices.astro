@@ -1,0 +1,99 @@
+---
+/*
+ * Homepage services block: four headline services as large photo cards,
+ * the rest as compact links, and a way through to /usluge/. The full grid
+ * of every service lives on /usluge/ and at the end of each service page.
+ */
+import { Image } from 'astro:assets';
+import { getServices } from '../i18n/content';
+import { localeFromUrl, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import Icon from './Icon.astro';
+import ServiceIcon from './ServiceIcon.astro';
+
+// Service keys (file names), the same in every language.
+const featuredKeys = ['zubni-implanti', 'estetska-stomatologija', 'protetika', 'ortodoncija'];
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const all = await getServices(locale);
+const featured = featuredKeys.map((key) => all.find((s) => s.key === key)!);
+const others = all.filter((s) => !featuredKeys.includes(s.key));
+---
+
+<section class="section-pad bg-tint-2">
+  <div class="container-site">
+    <div class="mb-12 flex flex-col gap-6 md:mb-14 md:flex-row md:items-end md:justify-between">
+      <div class="max-w-2xl">
+        <p class="eyebrow">{t.home.servicesEyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">
+          {t.home.servicesTitleA}<span class="text-brand-700">{t.home.servicesTitleB}</span>
+        </h2>
+        <p class="mt-4 text-[clamp(1rem,0.9rem+0.4vw,1.125rem)] leading-[1.67]">
+          {t.home.servicesLead}
+        </p>
+      </div>
+      <a href={pagePath(locale, 'services')} class="btn-outline shrink-0 bg-white">
+        {t.common.allServices} <Icon name="arrow-right" class="h-4 w-4" />
+      </a>
+    </div>
+
+    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        featured.map((s) => (
+          <li class="group relative isolate flex min-h-[21rem] flex-col justify-end overflow-hidden sm:min-h-[26rem] rounded-[var(--radius-card)] shadow-[0_16px_40px_rgb(0_0_0/0.12)] lg:min-h-[30rem]">
+            <Image
+              src={s.data.image}
+              alt=""
+              widths={[400, 600, 800]}
+              sizes="(min-width: 1024px) 270px, (min-width: 640px) 50vw, 100vw"
+              class="absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:group-hover:scale-100"
+            />
+            <div
+              class="absolute inset-0 -z-10 bg-linear-to-t from-brand-900 via-brand-900/75 via-45% to-brand-900/5"
+              aria-hidden="true"
+            />
+            <span class="absolute top-5 left-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-lg">
+              <ServiceIcon name={s.data.icon} class="h-11 w-11" />
+            </span>
+            <div class="flex flex-col gap-3 p-6 text-white sm:p-7">
+              <h3 class="text-2xl leading-tight text-white">
+                <a href={s.url} class="after:absolute after:inset-0">
+                  {s.data.menuTitle ?? s.data.title}
+                </a>
+              </h3>
+              <p class="line-clamp-3 text-[15px] leading-relaxed text-white/85">{s.data.lead}</p>
+              <span class="mt-2 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-brand-800 transition group-hover:bg-brand-100" aria-hidden="true">
+                {t.common.learnMore} <Icon name="arrow-right" class="h-4 w-4 transition group-hover:translate-x-0.5" />
+              </span>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- The rest, one tap away. -->
+    <div class="mt-8 rounded-[var(--radius-card)] border border-card bg-white p-6 sm:p-8">
+      <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <p class="font-display text-lg font-semibold text-title lg:shrink-0">{t.home.alsoWeDo}</p>
+        <ul class="flex flex-wrap gap-3">
+          {
+            others.map((s) => (
+              <li>
+                <a
+                  href={s.url}
+                  class="flex items-center gap-2.5 rounded-full border border-card bg-tint-1 py-2 pr-5 pl-2 font-semibold text-title transition hover:border-brand-200 hover:bg-brand-50 hover:text-brand-700"
+                >
+                  <span class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                    <ServiceIcon name={s.data.icon} class="h-6 w-6" />
+                  </span>
+                  {s.data.menuTitle ?? s.data.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

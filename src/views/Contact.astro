@@ -1,0 +1,298 @@
+---
+/*
+ * The contact page works as the site's landing page: every "Zakažite" button
+ * leads here. The form sits in the first screen (right on desktop, straight
+ * after the headline on phones), surrounded by the reasons to send it; the
+ * rest of the page answers what a hesitant visitor still wants to know.
+ */
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import BookingForm from '../components/BookingForm.astro';
+import Icon from '../components/Icon.astro';
+import Stars from '../components/Stars.astro';
+import { site, telHref } from '../config/site';
+import { localeFromUrl, pageAlternates, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import { breadcrumbSchema, faqSchema } from '../lib/schema';
+import room from '../assets/ordinacija/ordinacija-pancevo.jpg';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const c = t.contact;
+const crumbs = [
+  { name: t.nav.home, path: pagePath(locale, 'home') },
+  { name: t.nav.contact, path: pagePath(locale, 'contact') },
+];
+const weekdays = site.hours[0];
+const saturday = site.hours[1];
+const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
+const range = (o: string | null, cl: string | null) => (locale === 'sr' ? `${o} do ${cl}` : locale === 'de' ? `${o} bis ${cl}` : `${o}–${cl}`);
+
+const benefits = c.benefits;
+const stepIcons = ['mail', 'phone', 'smile'] as const;
+const steps = c.steps.map((st, i) => ({
+  icon: stepIcons[i],
+  title: st.title,
+  text: typeof st.text === 'function' ? st.text(site.street) : st.text,
+}));
+const faq = c.faq(phone, range(weekdays.opens, weekdays.closes), range(saturday.opens, saturday.closes), site.street, site.postalCode, site.city);
+const quote = t.testimonials.reviews[0];
+const q = locale === 'en' ? ['“', '”'] : locale === 'de' ? ['„', '“'] : ['„', '”'];
+---
+
+<Base
+  title={t.meta.contactTitle}
+  description={t.meta.contactDescription(phone, site.street, site.city)}
+  schema={[
+    breadcrumbSchema(crumbs),
+    faqSchema(faq),
+  ]}
+  alternates={pageAlternates('contact')}
+  pageType="ContactPage"
+>
+  <!-- LANDING HERO: form in the first screen -->
+  <section class="relative overflow-clip bg-tint-1">
+    <div class="absolute -top-40 -right-40 h-[30rem] w-[30rem] rounded-full bg-brand-100/80 blur-[110px]" aria-hidden="true"></div>
+    <div class="container-site relative grid gap-8 py-10 md:py-14 lg:grid-cols-[1fr_1.05fr] lg:grid-rows-[auto_1fr] lg:gap-x-14 lg:gap-y-8 lg:py-16">
+      <!-- Headline -->
+      <div class="lg:col-start-1 lg:row-start-1">
+        <nav aria-label={t.nav.breadcrumbs} class="text-sm font-medium">
+          <ol class="flex items-center gap-1.5">
+            <li><a href={crumbs[0].path} class="hover:text-brand-700 hover:underline">{crumbs[0].name}</a></li>
+            <li class="flex items-center gap-1.5">
+              <Icon name="chevron-down" class="h-3.5 w-3.5 -rotate-90 text-brand-500" />
+              <span aria-current="page" class="text-title">{crumbs[1].name}</span>
+            </li>
+          </ol>
+        </nav>
+        <p class="eyebrow mt-8 flex items-center gap-2"><Icon name="calendar" class="h-4 w-4" /> {c.eyebrow}</p>
+        <h1 class="mt-4 text-[clamp(2.1rem,1.2rem+3.4vw,3.4rem)] leading-[1.1] text-title">
+          {c.titleA}<span class="text-brand-700">{c.titleB}</span>
+        </h1>
+        <p class="mt-5 max-w-xl text-[clamp(1.05rem,0.95rem+0.4vw,1.2rem)] leading-[1.65]">
+          {c.lead}
+        </p>
+        <a href={site.rating.url} rel="noopener" target="_blank" class="mt-6 flex w-fit items-center gap-3 text-sm">
+          <Stars />
+          <span><strong class="text-title">{site.rating.value}/5</strong> · {t.common.patientRatings(site.rating.count)}</span>
+        </a>
+      </div>
+
+      <!-- Form -->
+      <div id="zakazivanje" class="scroll-mt-28 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        <div class="rounded-[2rem] bg-white p-6 shadow-[0_30px_80px_rgb(24_56_67/0.16)] ring-1 ring-card sm:p-9">
+          <div class="mb-7 flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-2xl">{c.formTitle}</h2>
+              <p class="mt-1 text-sm">{c.formNote}</p>
+            </div>
+            <span class="hidden shrink-0 items-center gap-2 rounded-full bg-tint-2 px-3 py-1.5 text-xs font-semibold text-brand-800 sm:inline-flex">
+              <Icon name="clock" class="h-4 w-4" /> {c.oneMinute}
+            </span>
+          </div>
+          <BookingForm name="zakazivanje" />
+        </div>
+      </div>
+
+      <!-- Reasons and direct contact -->
+      <div class="flex flex-col gap-6 lg:col-start-1 lg:row-start-2">
+        <ul class="grid gap-3 sm:grid-cols-2">
+          {
+            benefits.map((b) => (
+              <li class="flex items-start gap-3 rounded-2xl bg-white p-4 text-[15px] font-semibold text-title shadow-sm ring-1 ring-card">
+                <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-700 text-white">
+                  <Icon name="check" class="h-4 w-4" />
+                </span>
+                {b}
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="relative isolate overflow-clip rounded-[var(--radius-card)] bg-brand-900 p-6 text-white sm:p-7">
+          <div class="absolute -top-20 -right-20 -z-10 h-56 w-56 rounded-full bg-brand-500/40 blur-[80px]" aria-hidden="true"></div>
+          <p class="flex items-center gap-2 font-semibold">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75 motion-reduce:animate-none"></span>
+              <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500"></span>
+            </span>
+            {t.common.toothacheShort}
+          </p>
+          <a href={telHref} class="mt-3 flex items-center gap-3 font-display text-3xl font-bold hover:underline">
+            <Icon name="phone" class="h-7 w-7 text-brand-200" />{phone}
+          </a>
+          <div class="mt-5 grid gap-4 border-t border-white/15 pt-5 text-sm sm:grid-cols-2">
+            <p class="flex items-start gap-2.5">
+              <Icon name="clock" class="mt-0.5 h-4 w-4 shrink-0 text-brand-200" />
+              <span class="text-white/85">{t.common.weekdaysShort} {weekdays.opens}–{weekdays.closes}<br />{t.common.saturday} {saturday.opens}–{saturday.closes}</span>
+            </p>
+            <a href={site.mapsUrl} rel="noopener" target="_blank" class="flex items-start gap-2.5 text-white/85 hover:text-white">
+              <Icon name="map-pin" class="mt-0.5 h-4 w-4 shrink-0 text-brand-200" />
+              <span>{site.street}<br />{site.postalCode} {site.city}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section-pad">
+    <div class="container-site">
+      <div class="mx-auto mb-12 max-w-2xl text-center">
+        <p class="eyebrow">{c.stepsEyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">{c.stepsTitle}</h2>
+      </div>
+      <ol class="grid gap-6 md:grid-cols-3">
+        {
+          steps.map((st, i) => (
+            <li class="card relative flex flex-col gap-4">
+              <span class="absolute top-6 right-7 font-display text-5xl font-bold text-brand-100">{i + 1}</span>
+              <span class="icon-tile"><Icon name={st.icon} class="h-7 w-7" /></span>
+              <h3 class="text-xl">{st.title}</h3>
+              <p class="leading-relaxed">{st.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- TRUST -->
+  <section class="section-pad bg-tint-2">
+    <div class="container-site grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
+      <div class="relative">
+        <div class="overflow-hidden rounded-[var(--radius-media)] shadow-[0_24px_60px_rgb(0_0_0/0.16)]">
+          <Image src={room} alt={c.roomAlt} widths={[480, 720, 960]} sizes="(min-width: 1024px) 540px, 100vw" class="aspect-[4/3] w-full object-cover" />
+        </div>
+        <div class="absolute -bottom-6 left-4 rounded-2xl bg-white px-5 py-4 shadow-[0_16px_40px_rgb(0_0_0/0.14)] sm:left-6">
+          <p class="font-display text-2xl font-bold text-title">{c.since}</p>
+          <p class="text-sm">{c.sinceNote(site.street)}</p>
+        </div>
+      </div>
+      <figure class="flex flex-col gap-6 pt-6 lg:pt-0">
+        <span class="icon-tile h-14! w-14! bg-brand-700! text-white!"><Icon name="quote" class="h-6 w-6" /></span>
+        <blockquote class="text-[clamp(1.2rem,1rem+0.8vw,1.6rem)] leading-[1.55] font-medium text-title">
+          {q[0]}{quote.text}{q[1]}
+        </blockquote>
+        <figcaption class="flex flex-wrap items-center gap-4 border-t border-card pt-5">
+          <span class="font-semibold text-title">{quote.name}</span>
+          <span class="text-sm text-brand-700">{quote.note}{t.testimonials.translatedNote && ` · ${t.testimonials.translatedNote}`}</span>
+          <span class="ml-auto flex items-center gap-2 text-sm"><Stars class="h-4 w-4" /> {site.rating.value} · {t.common.ratings(site.rating.count)}</span>
+        </figcaption>
+        <a href="#zakazivanje" class="btn-primary self-start"><Icon name="calendar" class="h-5 w-5" /> {c.sendRequest}</a>
+      </figure>
+    </div>
+  </section>
+
+  <!-- QUESTIONS + MAP -->
+  <section class="section-pad">
+    <div class="container-site grid gap-10 lg:grid-cols-2 lg:gap-12">
+      <!-- Questions -->
+      <div class="flex flex-col">
+        <p class="eyebrow">{c.faqEyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.6rem,1.1rem+2vw,2.25rem)] leading-tight">{c.faqTitle}</h2>
+        <div class="mt-8 flex flex-col gap-3">
+          {
+            faq.map((f, i) => (
+              <details class="group rounded-2xl border border-card bg-white transition open:shadow-[0_12px_32px_rgb(0_0_0/0.06)]" open={i === 0}>
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-5 [&::-webkit-details-marker]:hidden">
+                  <h3 class="flex items-center gap-3 text-[17px]">
+                    <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-tint-2 font-display text-sm font-bold text-brand-700 group-open:bg-brand-700 group-open:text-white">
+                      {i + 1}
+                    </span>
+                    {f.q}
+                  </h3>
+                  <Icon name="chevron-down" class="h-5 w-5 shrink-0 text-brand-700 transition group-open:rotate-180" />
+                </summary>
+                <p class="px-5 pb-5 pl-16 leading-[1.7]">{f.a}</p>
+              </details>
+            ))
+          }
+        </div>
+        <a
+          href={`mailto:${site.email}`}
+          class="group mt-6 flex items-center gap-4 rounded-2xl bg-tint-2 p-5 transition hover:bg-brand-100"
+        >
+          <span class="icon-tile h-12! w-12! bg-white!"><Icon name="mail" class="h-5 w-5" /></span>
+          <span class="min-w-0">
+            <span class="block text-sm font-semibold text-title">{c.preferEmail}</span>
+            <span class="block truncate font-semibold text-brand-700 group-hover:underline">{site.email}</span>
+          </span>
+          <Icon name="arrow-right" class="ml-auto h-5 w-5 shrink-0 text-brand-700 transition group-hover:translate-x-1" />
+        </a>
+      </div>
+
+      <!-- Directions -->
+      <div class="flex flex-col">
+        <p class="eyebrow">{c.locationEyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.6rem,1.1rem+2vw,2.25rem)] leading-tight">{c.locationTitle}</h2>
+        <ul class="mt-8 grid gap-3 sm:grid-cols-[1fr_1.25fr_1fr]">
+          <li class="rounded-2xl border border-card bg-white p-4">
+            <Icon name="map-pin" class="h-5 w-5 text-brand-700" />
+            <p class="mt-2 text-xs font-semibold">{t.common.address}</p>
+            <p class="font-semibold text-title">{site.street}<br />{site.city}</p>
+          </li>
+          <li class="rounded-2xl border border-card bg-white p-4">
+            <Icon name="clock" class="h-5 w-5 text-brand-700" />
+            <p class="mt-2 text-xs font-semibold">{t.common.hours}</p>
+            <p class="text-[15px] font-semibold whitespace-nowrap text-title">{t.common.weekdaysShort} {weekdays.opens}–{weekdays.closes}<br />{t.common.saturdayShort} {saturday.opens}–{saturday.closes}</p>
+          </li>
+          <li class="rounded-2xl border border-card bg-white p-4">
+            <Icon name="phone" class="h-5 w-5 text-brand-700" />
+            <p class="mt-2 text-xs font-semibold">{t.common.phone}</p>
+            <a href={telHref} class="font-semibold text-title hover:text-brand-700 whitespace-nowrap">{phone}</a>
+          </li>
+        </ul>
+
+        <!-- The map loads only on request: no Google requests or cookies until the visitor asks for it. -->
+        <div
+          class="relative mt-4 min-h-[18rem] flex-1 overflow-hidden rounded-[var(--radius-card)] border border-card bg-tint-2"
+          data-map={site.mapsEmbed}
+          data-map-title={c.mapTitle}
+        >
+          <!-- Stylised street grid as a placeholder -->
+          <svg class="absolute inset-0 h-full w-full text-brand-200" aria-hidden="true">
+            <defs>
+              <pattern id="streets" width="80" height="80" patternUnits="userSpaceOnUse">
+                <path d="M0 40h80M40 0v80" stroke="currentColor" stroke-width="10" />
+                <path d="M0 40h80M40 0v80" stroke="white" stroke-width="7" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#streets)" />
+            <path d="M-20 260 L700 60" stroke="white" stroke-width="18" />
+            <path d="M-20 260 L700 60" stroke="currentColor" stroke-width="2" stroke-dasharray="6 8" />
+          </svg>
+          <div class="relative flex h-full min-h-[18rem] flex-col items-center justify-center gap-4 p-6 text-center">
+            <span class="relative flex h-16 w-16 items-center justify-center">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-500/30 motion-reduce:animate-none"></span>
+              <span class="relative inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-[0_10px_24px_rgb(43_96_115/0.4)]">
+                <Icon name="map-pin" class="h-7 w-7" />
+              </span>
+            </span>
+            <p class="rounded-xl bg-white/90 px-4 py-2 font-semibold text-title shadow-sm backdrop-blur">
+              {site.street}, {site.postalCode} {site.city}
+            </p>
+            <div class="flex flex-wrap justify-center gap-3">
+              <button type="button" class="btn-primary" data-map-load>{c.showMap}</button>
+              <a href={site.mapsUrl} class="btn-outline bg-white" rel="noopener" target="_blank">{c.openMaps}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  for (const box of document.querySelectorAll<HTMLElement>('[data-map]')) {
+    box.querySelector('[data-map-load]')?.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.src = box.dataset.map!;
+      frame.title = box.dataset.mapTitle ?? '';
+      frame.className = 'absolute inset-0 h-full w-full border-0';
+      frame.referrerPolicy = 'no-referrer-when-downgrade';
+      box.replaceChildren(frame);
+    });
+  }
+</script>

@@ -1,0 +1,103 @@
+---
+import { getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import ArticleAside from '../components/ArticleAside.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import CtaContact from '../components/CtaContact.astro';
+import Icon from '../components/Icon.astro';
+import ServiceIcon from '../components/ServiceIcon.astro';
+import { site, telHref, bookingHref } from '../config/site';
+import { breadcrumbSchema, faqSchema, serviceSchema } from '../lib/schema';
+import type { Service } from '../i18n/content';
+import { pagePath, type Alternates } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+
+interface Props {
+  service: Service;
+  alternates: Alternates;
+}
+const { service, alternates } = Astro.props;
+const locale = service.locale;
+const t = useT(locale);
+const path = service.url;
+const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
+const { Content, headings } = await render(service);
+const imageUrl = new URL((await getImage({ src: service.data.image, width: 1200, format: 'jpg' })).src, Astro.site).href;
+const crumbs = [
+  { name: t.nav.home, path: pagePath(locale, 'home') },
+  { name: t.nav.services, path: pagePath(locale, 'services') },
+  { name: service.data.menuTitle ?? service.data.title, path },
+];
+---
+
+<Base
+  alternates={alternates}
+  pageType="MedicalWebPage"
+  title={service.data.seoTitle}
+  description={service.data.description}
+  image={service.data.image}
+  schema={[
+    serviceSchema({ name: service.data.title, description: service.data.description, path, imageUrl }),
+    breadcrumbSchema(crumbs),
+    ...(service.data.faq.length ? [faqSchema(service.data.faq)] : []),
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    icon={service.data.icon}
+    eyebrow={t.service.eyebrow}
+    title={service.data.title}
+    highlight={service.data.title.includes(t.service.highlight) ? t.service.highlight : undefined}
+    lead={service.data.lead}
+    image={service.data.image}
+    imageAlt={service.data.imageAlt}
+    trust
+  >
+    <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <a href={bookingHref(locale, service.key)} class="btn-primary h-13 shadow-[0_10px_24px_rgb(43_96_115/0.3)]">
+        <Icon name="calendar" class="h-5 w-5" /> {t.common.book}
+      </a>
+      <a href={telHref} class="btn-outline h-13 bg-white"><Icon name="phone" class="h-5 w-5" /> {phone}</a>
+    </div>
+  </PageHero>
+
+  <div class="container-site section-pad grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
+    <div>
+      <article class="prose-site">
+        <Content />
+      </article>
+      <Faq items={service.data.faq} />
+
+      <!-- Inline nudge after the reading is done -->
+      <div class="mt-14 flex flex-col gap-5 rounded-[var(--radius-card)] border border-card bg-tint-2 p-7 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center gap-4">
+          <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm">
+            <ServiceIcon name={service.data.icon} class="h-10 w-10" />
+          </span>
+          <div>
+            <p class="font-display text-lg font-semibold text-title">{t.service.questionTitle}</p>
+            <p class="text-sm">{t.service.questionText}</p>
+          </div>
+        </div>
+        <a href={bookingHref(locale, service.key)} class="btn-primary shrink-0">{t.common.book}</a>
+      </div>
+    </div>
+    <ArticleAside headings={headings} exclude={service.key} />
+  </div>
+
+  <CtaContact
+    service={service.key}
+    title={t.cta.serviceTitle(service.data.menuTitle ?? service.data.title)}
+  />
+
+  <section class="section-pad">
+    <div class="container-site">
+      <SectionHeader eyebrow={t.service.otherEyebrow} title={t.service.otherTitle} subtitle={t.service.otherLead} />
+      <ServiceGrid exclude={service.key} dense />
+    </div>
+  </section>
+</Base>

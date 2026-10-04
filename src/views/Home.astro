@@ -1,0 +1,407 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import FeaturedServices from '../components/FeaturedServices.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Team from '../components/Team.astro';
+import CtaContact from '../components/CtaContact.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
+import Stars from '../components/Stars.astro';
+import { site, telHref, bookingHref } from '../config/site';
+import { getPosts, getServices, readingMinutes } from '../i18n/content';
+import { localeFromUrl, pageAlternates, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import heroImg from '../assets/tim/dr-milos-eric-ordinacija.webp';
+import room from '../assets/ordinacija/stomatoloska-stolica.jpg';
+import loupes from '../assets/ordinacija/rad-sa-lupama.jpg';
+import xray from '../assets/ordinacija/digitalni-rendgen.jpg';
+import patient from '../assets/ordinacija/pacijent-u-stolici.jpg';
+import hallway from '../assets/ordinacija/hodnik-ordinacije.jpg';
+import practice from '../assets/ordinacija/ordinacija-pancevo.jpg';
+import logoStraumann from '../assets/brendovi/straumann.svg';
+import logoZimmer from '../assets/brendovi/zimmer-biomet.svg';
+import logoIres from '../assets/brendovi/ires.svg';
+import sterilization from '../assets/ordinacija/sterilizacija.jpg';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const h = t.home;
+const services = await getServices(locale);
+const posts = (await getPosts(locale)).map((p) => ({
+  ...p,
+  category: services.find((s) => s.key === p.data.related[0])?.data.menuTitle,
+  minutes: readingMinutes(p.body),
+}));
+const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
+const contact = bookingHref(locale);
+
+const reasonIcons: IconName[] = ['users', 'microscope', 'award', 'heart', 'smile', 'shield-check'];
+const reasons = h.reasons.map((r, i) => ({ ...r, icon: reasonIcons[i] }));
+
+const trustIcons: IconName[] = ['tooth', 'calendar', 'clock', 'shield-check'];
+const trust = h.trust.map((x, i) => ({ ...x, icon: trustIcons[i] }));
+
+const stats: { icon: IconName; value: string; label: string; note: string; stars?: boolean }[] = [
+  { icon: 'heart', value: site.rating.value, label: h.stats[0].label, note: h.stats[0].note(site.rating.count, site.rating.source), stars: true },
+  { icon: 'calendar', value: locale === 'sr' ? '2020.' : '2020', label: h.stats[1].label, note: h.stats[1].note(0, '') },
+  { icon: 'tooth', value: '9', label: h.stats[2].label, note: h.stats[2].note(0, '') },
+  { icon: 'clock', value: h.sixDays, label: h.stats[3].label, note: h.stats[3].note(0, '') },
+];
+
+const tileImages = [practice, xray, sterilization, patient, hallway];
+const tileIcons = ['map-pin', 'microscope', 'shield-check', 'heart', 'smile'] as IconName[];
+const tiles = h.practiceTiles.map((x, i) => ({ ...x, img: tileImages[i], icon: tileIcons[i], big: i === 0 }));
+---
+
+<Base title={t.meta.homeTitle} description={t.meta.homeDescription} alternates={pageAlternates('home')}>
+  <!-- HERO: copy on the left, a full-height photo bleeding to the right edge. -->
+  <section class="relative overflow-clip bg-tint-1">
+    <!-- Photo: top of the page on phones, right 55% at full height on desktop. -->
+    <div class="relative lg:absolute lg:inset-y-0 lg:right-0 lg:w-[54%]">
+      <Image
+        src={heroImg}
+        alt={h.heroAlt}
+        widths={[640, 960, 1280, 1600]}
+        sizes="(min-width: 1024px) 54vw, 100vw"
+        class="h-[22rem] w-full object-cover object-[42%_30%] sm:h-[28rem] lg:h-full lg:object-[22%_30%]"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="absolute inset-0 bg-linear-to-t from-brand-900/45 via-transparent to-transparent" aria-hidden="true"></div>
+      <!-- Soft left edge on desktop: the photo blurs and fades into the background instead of meeting it in a hard line. -->
+      <div class="absolute inset-y-0 left-0 hidden w-[14%] backdrop-blur-sm [mask-image:linear-gradient(to_right,black,transparent)] lg:block" aria-hidden="true"></div>
+      <div class="absolute inset-y-0 -left-16 hidden w-[calc(22%+4rem)] bg-linear-to-r from-tint-1 from-25% via-tint-1/60 via-55% to-transparent lg:block" aria-hidden="true"></div>
+
+      <!-- Rating card -->
+      <a
+        href={site.rating.url}
+        rel="noopener"
+        target="_blank"
+        class="absolute right-4 bottom-4 flex items-center gap-3 rounded-2xl bg-white/95 px-4 py-3 shadow-[0_12px_32px_rgb(0_0_0/0.15)] backdrop-blur transition hover:bg-white sm:right-5 sm:bottom-5 lg:right-10 lg:bottom-28"
+      >
+        <span class="font-display text-3xl font-bold text-title">{site.rating.value}</span>
+        <span>
+          <Stars class="h-4 w-4" />
+          <span class="block text-xs font-semibold text-muted">{t.common.ratings(site.rating.count)} · {site.rating.source}</span>
+        </span>
+      </a>
+
+      <!-- Doctor card -->
+      <div class="absolute bottom-5 left-5 hidden items-center gap-3 rounded-2xl sm:flex bg-white/95 px-4 py-3 shadow-[0_12px_32px_rgb(0_0_0/0.15)] backdrop-blur lg:bottom-28 lg:left-[5%]">
+        <span class="icon-tile h-11! w-11!"><Icon name="award" class="h-6 w-6" /></span>
+        <span>
+          <span class="block font-semibold text-title">{t.common.doctorName}</span>
+          <span class="block text-xs font-semibold text-brand-700">{t.common.owner}</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-[88rem] px-4 sm:px-6 lg:flex lg:min-h-[min(90vh,820px)] lg:items-center lg:px-10 xl:px-14">
+      <div class="flex flex-col gap-6 pt-10 pb-24 sm:pt-12 lg:w-[42%] lg:max-w-[34rem] lg:py-28">
+        <p class="eyebrow flex items-center gap-2">
+          <Icon name="map-pin" class="h-4 w-4" /> {h.eyebrow}
+        </p>
+        <h1 class="text-[clamp(2.2rem,1rem+4.6vw,3.75rem)] leading-[1.1] text-title">
+          {h.titleA}<span class="text-brand-700">{h.titleB}</span>
+        </h1>
+        <p class="max-w-xl text-[clamp(1.05rem,0.95rem+0.4vw,1.2rem)] leading-[1.67]">
+          {h.lead}
+        </p>
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <a href={contact} class="btn-primary h-14 px-9! text-lg shadow-[0_10px_24px_rgb(43_96_115/0.35)]">
+            <Icon name="calendar" class="h-5 w-5" /> {t.common.book}
+          </a>
+          <a href={telHref} class="btn-outline h-14 bg-white px-9! text-lg">
+            <Icon name="phone" class="h-5 w-5" /> {phone}
+          </a>
+        </div>
+        <a href={site.rating.url} rel="noopener" target="_blank" class="group flex items-center gap-3 text-sm">
+          <Stars />
+          <span class="group-hover:text-brand-700">{t.common.ratingLine(site.rating.value, site.rating.count, site.rating.source)}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUST BAR: overlaps the hero's lower edge. -->
+  <section class="relative z-10 -mt-14 lg:-mt-12">
+    <div class="container-site">
+      <ul class="grid gap-px overflow-hidden sm:grid-cols-2 rounded-[var(--radius-card)] border border-card bg-card shadow-[0_16px_40px_rgb(0_0_0/0.08)] lg:grid-cols-4">
+        {
+          trust.map((x) => (
+            <li class="flex items-center gap-4 bg-white px-5 py-4 sm:p-6">
+              <span class="icon-tile h-12! w-12!"><Icon name={x.icon} class="h-6 w-6" /></span>
+              <span>
+                <span class="block font-display text-lg leading-tight font-semibold text-title">{x.title}</span>
+                <span class="block text-sm">{x.text}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+      <!-- Implant brands the practice uses. Logos are the manufacturers' trademarks. -->
+      <div class="mt-10 mb-14 flex flex-col items-center gap-5 md:mb-16 md:flex-row md:justify-center md:gap-10">
+        <p class="text-sm font-semibold">{t.common.implantBrands}</p>
+        <ul class="flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
+          {
+            [
+              { src: logoStraumann, alt: 'Straumann', h: 'h-7' },
+              { src: logoZimmer, alt: 'Zimmer Biomet', h: 'h-8' },
+              { src: logoIres, alt: 'iRES', h: 'h-10' },
+            ].map((b) => (
+              <li>
+                <Image
+                  src={b.src}
+                  alt={b.alt}
+                  class:list={[b.h, 'w-auto transition duration-300 lg:opacity-60 lg:grayscale lg:hover:opacity-100 lg:hover:grayscale-0']}
+                />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <FeaturedServices />
+
+  <!-- WHY: photo collage on the left, the reasons on the right. -->
+  <section class="section-pad overflow-clip">
+    <div class="container-site grid items-center gap-16 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+      <!-- Collage -->
+      <div class="relative mx-auto w-full max-w-md pb-16 sm:pb-20 lg:max-w-none lg:pr-14">
+        <div class="absolute -top-6 -left-6 h-40 w-40 rounded-[2rem] bg-brand-100 sm:h-56 sm:w-56" aria-hidden="true"></div>
+        <div class="relative overflow-hidden rounded-[var(--radius-media)] shadow-[0_24px_60px_rgb(0_0_0/0.18)]">
+          <Image
+            src={loupes}
+            alt={h.whyCollageAlt}
+            widths={[400, 640, 900]}
+            sizes="(min-width: 1024px) 440px, (min-width: 640px) 448px, 100vw"
+            class="aspect-[4/5] w-full object-cover"
+          />
+        </div>
+        <div class="absolute right-0 bottom-0 w-[52%] overflow-hidden rounded-[var(--radius-media)] border-[6px] border-white shadow-[0_20px_50px_rgb(0_0_0/0.2)]">
+          <Image src={room} alt={h.whyRoomAlt} widths={[300, 480]} sizes="240px" class="aspect-square w-full object-cover" />
+        </div>
+        <!-- Since 2020 -->
+        <div class="absolute top-8 -right-2 flex flex-col items-center justify-center rounded-2xl bg-brand-700 px-5 py-4 text-center text-white shadow-[0_16px_40px_rgb(43_96_115/0.4)] sm:right-4">
+          <span class="text-xs font-semibold tracking-wider text-brand-100 uppercase">{h.since}</span>
+          <span class="font-display text-3xl leading-none font-bold">{locale === 'sr' ? '2020.' : '2020'}</span>
+          <span class="mt-1 text-xs text-white/85">{h.inPancevo}</span>
+        </div>
+        <!-- Rating -->
+        <a
+          href={site.rating.url}
+          rel="noopener"
+          target="_blank"
+          class="absolute bottom-6 -left-2 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_16px_40px_rgb(0_0_0/0.14)] sm:left-0"
+        >
+          <span class="font-display text-2xl font-bold text-title">{site.rating.value}</span>
+          <span>
+            <Stars class="h-4 w-4" />
+            <span class="block text-xs font-semibold">{t.common.patientRatings(site.rating.count)}</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- Reasons -->
+      <div>
+        <p class="eyebrow">{h.whyEyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">
+          {h.whyTitleA}<span class="text-brand-700">{h.whyTitleB}</span>
+        </h2>
+        <p class="mt-5 text-[clamp(1rem,0.9rem+0.4vw,1.125rem)] leading-[1.7]">
+          {h.whyLead}
+        </p>
+        <ul class="mt-10 grid gap-x-8 gap-y-7 sm:grid-cols-2">
+          {
+            reasons.map((r) => (
+              <li class="flex gap-4">
+                <span class="icon-tile h-12! w-12!">
+                  <Icon name={r.icon} class="h-6 w-6" />
+                </span>
+                <div>
+                  <h3 class="text-lg leading-snug">{r.title}</h3>
+                  <p class="mt-1 text-[15px] leading-relaxed">{r.text}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="mt-10 flex flex-col gap-3 border-t border-card pt-8 sm:flex-row sm:items-center sm:gap-6">
+          <a href={contact} class="btn-primary"><Icon name="calendar" class="h-5 w-5" /> {t.common.book}</a>
+          <a href={telHref} class="group flex items-center gap-3">
+            <span class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-brand-100 text-brand-700 transition group-hover:bg-brand-700 group-hover:text-white">
+              <Icon name="phone" class="h-5 w-5" />
+            </span>
+            <span class="leading-tight">
+              <span class="block text-xs font-semibold">{t.common.orCallUs}</span>
+              <span class="block text-lg font-bold text-title group-hover:text-brand-700">{phone}</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS: dark band, intro on the left, four figures on the right. -->
+  <section class="relative isolate overflow-clip bg-brand-900 py-20 text-white md:py-24">
+    <div class="absolute -top-40 -left-40 -z-10 h-[28rem] w-[28rem] rounded-full bg-brand-500/30 blur-[120px]" aria-hidden="true"></div>
+    <div class="absolute -right-32 -bottom-48 -z-10 h-[30rem] w-[30rem] rounded-full bg-brand-600/40 blur-[120px]" aria-hidden="true"></div>
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(rgb(255_255_255/0.07)_1px,transparent_1px)] [background-size:22px_22px]" aria-hidden="true"></div>
+
+    <div class="container-site grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+      <div>
+        <p class="text-sm font-bold tracking-[0.1em] text-brand-200 uppercase">{h.statsEyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight text-white">
+          {h.statsTitle}
+        </h2>
+        <p class="mt-5 max-w-md text-lg leading-[1.7] text-white/80">
+          {h.statsLead}
+        </p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a href={contact} class="btn-light"><Icon name="calendar" class="h-5 w-5" /> {t.common.book}</a>
+          <a href={pagePath(locale, 'about')} class="btn border-2 border-white/40 text-white hover:border-white hover:bg-white/10">{t.nav.about}</a>
+        </div>
+      </div>
+
+      <ul class="grid gap-4 sm:grid-cols-2 sm:gap-5">
+        {
+          stats.map((st) => (
+            <li class="flex flex-col gap-4 rounded-[1.5rem] bg-white/[0.06] p-6 ring-1 ring-white/15 backdrop-blur-sm transition hover:bg-white/[0.09] sm:p-7">
+              <div class="flex items-center justify-between">
+                <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-brand-100 ring-1 ring-white/15">
+                  <Icon name={st.icon} class="h-6 w-6" />
+                </span>
+                {st.stars && <Stars class="h-4 w-4" />}
+              </div>
+              <div class="flex flex-col-reverse">
+                <p class="mt-1 font-semibold text-white">{st.label}</p>
+                <p class="font-display text-[clamp(2.4rem,1.8rem+2vw,3.25rem)] leading-none font-bold tracking-tight text-white">{st.value}</p>
+              </div>
+              <p class="border-t border-white/10 pt-4 text-sm leading-relaxed text-white/70">{st.note}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- PRACTICE: two-column intro, then a bento gallery with captions. -->
+  <section class="section-pad bg-tint-1">
+    <div class="container-site">
+      <div class="mb-12 grid gap-8 md:mb-14 lg:grid-cols-2 lg:items-end lg:gap-16">
+        <div>
+          <p class="eyebrow">{h.practiceEyebrow}</p>
+          <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">
+            {h.practiceTitleA}<span class="text-brand-700">{h.practiceTitleB}</span>
+          </h2>
+        </div>
+        <div>
+          <p class="text-[clamp(1rem,0.9rem+0.4vw,1.125rem)] leading-[1.7]">
+            {h.practiceLead}
+          </p>
+          <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-title">
+            {h.practiceChecks.map((c) => (
+              <li class="flex items-center gap-2"><Icon name="check" class="h-4 w-4 text-brand-700" />{c}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2 lg:gap-5">
+        {
+          tiles.map((p) => (
+            <li
+              class:list={[
+                'group relative isolate overflow-hidden rounded-[var(--radius-media)] shadow-[0_16px_40px_rgb(0_0_0/0.12)]',
+                p.big ? 'min-h-[22rem] sm:col-span-2 lg:row-span-2 lg:min-h-[34rem]' : 'min-h-[16rem]',
+              ]}
+            >
+              <Image
+                src={p.img}
+                alt={p.alt}
+                widths={p.big ? [640, 960, 1280] : [320, 480, 640]}
+                sizes={p.big ? '(min-width: 1024px) 560px, 100vw' : '(min-width: 1024px) 270px, (min-width: 640px) 50vw, 100vw'}
+                class="absolute inset-0 -z-10 h-full w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:group-hover:scale-100"
+              />
+              <div class="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-linear-to-t from-brand-900/85 to-transparent" aria-hidden="true" />
+              <div class:list={['absolute inset-x-0 bottom-0 flex items-end gap-3 text-white', p.big ? 'p-6 sm:p-8' : 'p-5']}>
+                <span class:list={['inline-flex shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 backdrop-blur', p.big ? 'h-12 w-12' : 'h-10 w-10']}>
+                  <Icon name={p.icon as IconName} class={p.big ? 'h-6 w-6' : 'h-5 w-5'} />
+                </span>
+                <div>
+                  <h3 class:list={['text-white', p.big ? 'text-2xl' : 'text-lg leading-snug']}>{p.title}</h3>
+                  <p class:list={['text-white/85', p.big ? 'mt-1' : 'text-sm']}>{p.text}</p>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <Team />
+
+  <Testimonials />
+
+  <!-- BLOG: two cards per row on phones, four on large screens. -->
+  <section class="section-pad">
+    <div class="container-site">
+      <div class="mb-10 flex flex-col gap-6 md:mb-14 md:flex-row md:items-end md:justify-between">
+        <div class="max-w-2xl">
+          <p class="eyebrow">{h.blogEyebrow}</p>
+          <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">
+            {h.blogTitleA}<span class="text-brand-700">{h.blogTitleB}</span>
+          </h2>
+          <p class="mt-4 text-[clamp(1rem,0.9rem+0.4vw,1.125rem)] leading-[1.67]">
+            {h.blogLead}
+          </p>
+        </div>
+        <a href={pagePath(locale, 'blog')} class="btn-outline shrink-0 self-start md:self-auto">
+          {t.common.allPosts} <Icon name="arrow-right" class="h-4 w-4" />
+        </a>
+      </div>
+
+      <ul class="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+        {
+          posts.map((p) => (
+            <li class="group relative flex flex-col overflow-hidden rounded-2xl border border-card bg-white transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(0_0_0/0.1)] motion-reduce:hover:translate-y-0 sm:rounded-[var(--radius-card)]">
+              <div class="relative overflow-hidden">
+                <Image
+                  src={p.data.image}
+                  alt=""
+                  widths={[240, 360, 520]}
+                  sizes="(min-width: 1024px) 270px, 50vw"
+                  class="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                />
+                {p.category && (
+                  <span class="absolute top-2.5 left-2.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-brand-800 shadow-sm backdrop-blur sm:top-4 sm:left-4 sm:px-3 sm:text-xs">
+                    {p.category}
+                  </span>
+                )}
+              </div>
+              <div class="flex flex-1 flex-col gap-2 p-3.5 sm:gap-3 sm:p-6">
+                <p class="flex flex-wrap items-center gap-x-2 text-[11px] font-semibold text-muted sm:text-xs">
+                  <Icon name="clock" class="h-3.5 w-3.5 text-brand-700" />
+                  {t.common.minRead(p.minutes)}
+                </p>
+                <h3 class="text-[15px] leading-snug sm:text-lg">
+                  <a href={p.url} class="after:absolute after:inset-0 group-hover:text-brand-700">{p.data.title}</a>
+                </h3>
+                <p class="hidden flex-1 text-sm leading-relaxed sm:line-clamp-3">{p.data.description}</p>
+                <span class="mt-auto flex items-center gap-1.5 pt-1 text-xs font-semibold text-brand-700 sm:text-sm" aria-hidden="true">
+                  {t.common.readMore} <Icon name="arrow-right" class="h-4 w-4 transition group-hover:translate-x-0.5" />
+                </span>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CtaContact />
+</Base>

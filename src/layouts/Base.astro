@@ -1,0 +1,52 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import SeoHead from '../components/SeoHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../config/site';
+import { localeFromUrl, localeMeta, type Alternates } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: ImageMetadata;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  schema?: Record<string, unknown>[];
+  /** This page in each language: hreflang links and the language switcher. */
+  alternates?: Alternates;
+  pageType?: import('../lib/schema').PageType;
+  article?: { published: Date; modified?: Date; section?: string };
+}
+const props = Astro.props;
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+---
+
+<!doctype html>
+<html lang={localeMeta[locale].htmlLang}>
+  <head>
+    <SeoHead {...props} />
+    <Font cssVariable="--font-manrope" preload />
+    <Font cssVariable="--font-jakarta" preload />
+  </head>
+  <body>
+    <a href="#sadrzaj" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-2 focus:text-white">
+      {t.nav.skip}
+    </a>
+    <Header alternates={props.alternates} />
+    <main id="sadrzaj">
+      <slot />
+    </main>
+    <Footer />
+
+    <!-- Lead admin: page views without cookies, clicks on phone and email links, and form attribution. -->
+    {site.leadsSiteKey && <script is:inline src="https://stojanpetkovic.com/leads.js" data-site-key={site.leadsSiteKey} defer />}
+    <script>
+      import '../scripts/lead-forms';
+    </script>
+  </body>
+</html>

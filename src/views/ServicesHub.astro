@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ServiceGrid from '../components/ServiceGrid.astro';
+import CtaContact from '../components/CtaContact.astro';
+import { bookingHref } from '../config/site';
+import { breadcrumbSchema } from '../lib/schema';
+import { localeFromUrl, pageAlternates, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import heroImg from '../assets/ordinacija/ordinacija-pancevo.jpg';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const crumbs = [
+  { name: t.nav.home, path: pagePath(locale, 'home') },
+  { name: t.nav.services, path: pagePath(locale, 'services') },
+];
+---
+
+<Base title={t.meta.servicesTitle} description={t.meta.servicesDescription} schema={[breadcrumbSchema(crumbs)]} pageType="CollectionPage" alternates={pageAlternates('services')}>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={t.servicesHub.eyebrow}
+    title={t.servicesHub.title}
+    highlight={t.servicesHub.highlight}
+    lead={t.servicesHub.lead}
+    image={heroImg}
+    imageAlt={t.servicesHub.heroAlt}
+    trust
+  >
+    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+      <a href={bookingHref(locale)} class="btn-primary">{t.common.book}</a>
+      <a href={pagePath(locale, 'contact')} class="btn-outline bg-white">{t.nav.contact}</a>
+    </div>
+  </PageHero>
+  <section class="section-pad bg-tint-2">
+    <div class="container-site">
+      <ServiceGrid headingLevel="h2" />
+    </div>
+  </section>
+  <CtaContact />
+</Base>

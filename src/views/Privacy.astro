@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../config/site';
+import { localeFromUrl, pageAlternates, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const p = t.privacy;
+const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
+const rights = p.rights(site.email, phone);
+---
+
+<Base title={t.meta.privacyTitle} description={t.meta.privacyDescription} alternates={pageAlternates('privacy')}>
+  <PageHero
+    crumbs={[
+      { name: t.nav.home, path: pagePath(locale, 'home') },
+      { name: p.title, path: pagePath(locale, 'privacy') },
+    ]}
+    title={p.title}
+    lead={p.updated(p.date)}
+  />
+  <section class="py-14">
+    <div class="container-site prose-site max-w-3xl">
+      <p>{p.intro(site.name, site.street, site.postalCode, site.city)}</p>
+      {
+        p.sections.map((sec, i) => (
+          <>
+            <h2>{sec.h}</h2>
+            {sec.p.map((para) => <p>{para}</p>)}
+            {i === 2 && (
+              <p>
+                <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">policies.google.com/privacy</a>
+              </p>
+            )}
+          </>
+        ))
+      }
+      <h2>{p.rightsH}</h2>
+      <p>{rights[0]}<a href={`mailto:${rights[1]}`}>{rights[1]}</a>{rights[2]}</p>
+    </div>
+  </section>
+</Base>

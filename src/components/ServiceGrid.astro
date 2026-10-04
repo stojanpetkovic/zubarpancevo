@@ -1,0 +1,51 @@
+---
+import { getServices } from '../i18n/content';
+import { localeFromUrl } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import Icon from './Icon.astro';
+import ServiceIcon from './ServiceIcon.astro';
+
+interface Props {
+  /** Page id to leave out, so a service page does not list itself. */
+  exclude?: string;
+  headingLevel?: 'h2' | 'h3';
+  /** Four per row on large screens and two on phones, with smaller cards. */
+  dense?: boolean;
+}
+const { exclude, headingLevel: H = 'h3', dense = false } = Astro.props;
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+// `exclude` is a service key (file name), the same in every language.
+const services = (await getServices(locale)).filter((s) => s.key !== exclude);
+---
+
+<ul class:list={['grid', dense ? 'grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4' : 'gap-6 sm:grid-cols-2 lg:grid-cols-3']}>
+  {
+    services.map((s) => (
+      <li
+        class:list={[
+          'card group relative flex flex-col transition hover:-translate-y-1 hover:shadow-[0_12px_32px_rgb(0_0_0/0.08)] motion-reduce:hover:translate-y-0',
+          dense ? 'gap-3 rounded-2xl p-4! sm:gap-4 sm:rounded-[var(--radius-card)] sm:p-6!' : 'gap-5',
+        ]}
+      >
+        <span
+          class:list={[
+            'inline-flex items-center justify-center rounded-2xl bg-tint-2 transition group-hover:bg-brand-100',
+            dense ? 'h-14 w-14 sm:h-16 sm:w-16' : 'h-20 w-20',
+          ]}
+        >
+          <ServiceIcon name={s.data.icon} class={dense ? 'h-10 w-10 sm:h-11 sm:w-11' : 'h-14 w-14'} />
+        </span>
+        <H class:list={['leading-snug', dense ? 'text-[15px] sm:text-lg' : 'text-xl']}>
+          <a href={s.url} class="after:absolute after:inset-0">
+            {s.data.menuTitle ?? s.data.title}
+          </a>
+        </H>
+        <p class:list={['flex-1 leading-relaxed', dense && 'hidden text-[15px] sm:line-clamp-3']}>{s.data.lead}</p>
+        <span class:list={['mt-auto flex items-center gap-2 font-semibold text-brand-700', dense && 'text-sm']} aria-hidden="true">
+          {t.common.learnMore} <Icon name="arrow-right" class="h-4 w-4 transition group-hover:translate-x-1" />
+        </span>
+      </li>
+    ))
+  }
+</ul>

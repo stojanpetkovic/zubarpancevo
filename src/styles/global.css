@@ -1,0 +1,157 @@
+@import 'tailwindcss';
+
+/*
+  Layout and shapes follow the Medicsare template (rounded 30px cards with a
+  thin tinted border, 48px pill buttons, icon tiles, centred section headers,
+  pale tinted section backgrounds). Colours are the Erić Dental Centar brand:
+  logo teal #4088a0 and charcoal #4d4d4d. The logo teal is only 3.9:1 on
+  white, so text and buttons use brand-700 / brand-800, which pass WCAG AA.
+*/
+@theme {
+  --color-brand-50: #f0f7f9;
+  --color-brand-100: #dcedf2;
+  --color-brand-200: #b8dbe5;
+  --color-brand-500: #4088a0;
+  --color-brand-600: #357489;
+  --color-brand-700: #2b6073;
+  --color-brand-800: #224d5c;
+  --color-brand-900: #183843;
+
+  --color-title: #1c2326;
+  --color-ink: #262b2e;
+  --color-muted: #56626a;
+  --color-card: #d6e7ed;
+  --color-tint-1: #f7fafb;
+  --color-tint-2: #eef6f8;
+  --color-footer: #e6f0f3;
+
+  --font-sans: var(--font-manrope), 'Segoe UI', system-ui, sans-serif;
+  --font-display: var(--font-jakarta), 'Segoe UI', system-ui, sans-serif;
+
+  --radius-card: 1.875rem;
+  --radius-media: 1.125rem;
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-card);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white font-sans text-muted antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold text-title;
+  }
+  :focus-visible {
+    @apply rounded-sm outline-3 outline-offset-2 outline-brand-600;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+@utility container-site {
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+}
+@utility section-pad {
+  @apply py-16 md:py-24 lg:py-28;
+}
+@utility btn {
+  @apply inline-flex h-12 items-center justify-center gap-2 rounded-full px-8 font-semibold whitespace-nowrap transition-colors active:shadow-[inset_0_0_2px_2px_rgb(0_0_0/0.12)] sm:px-10;
+}
+@utility btn-primary {
+  @apply btn bg-brand-700 text-white hover:bg-brand-900;
+}
+@utility btn-outline {
+  @apply btn border-2 border-brand-700 text-brand-700 hover:border-brand-900 hover:text-brand-900;
+}
+@utility btn-light {
+  @apply btn bg-white text-brand-800 hover:bg-brand-50;
+}
+@utility eyebrow {
+  @apply text-sm font-bold tracking-[0.1em] text-brand-700 uppercase;
+}
+@utility card {
+  @apply rounded-[var(--radius-card)] border border-card bg-white p-7 sm:p-8;
+}
+@utility icon-tile {
+  @apply inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-[0.625rem] bg-brand-100 text-brand-700;
+}
+@utility field {
+  @apply w-full rounded-xl border border-[#e2edf1] bg-white px-4 py-3.5 text-base text-title transition outline-none placeholder:text-muted/70 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20;
+}
+
+@layer components {
+  /* Long-form text: service pages and blog posts. */
+  .prose-site {
+    @apply text-[1.0625rem] leading-[1.8] text-muted sm:text-lg;
+  }
+  .prose-site > * + * {
+    @apply mt-5;
+  }
+  /* The opening paragraph reads as the lead. */
+  .prose-site > p:first-child {
+    @apply text-[1.15rem] leading-[1.7] text-title sm:text-xl;
+  }
+  .prose-site h2 {
+    @apply relative mt-14 scroll-mt-32 pl-5 text-[1.6rem] leading-tight md:text-[2rem];
+  }
+  .prose-site h2::before {
+    content: '';
+    @apply absolute top-[0.15em] bottom-[0.15em] left-0 w-1.5 rounded-full bg-brand-500;
+  }
+  .prose-site h3 {
+    @apply mt-10 scroll-mt-32 text-xl;
+  }
+  /* Bullets become teal check marks. */
+  .prose-site ul {
+    @apply space-y-3;
+  }
+  .prose-site ul > li {
+    @apply relative pl-9;
+  }
+  .prose-site ul > li::before {
+    content: '';
+    @apply absolute top-[0.3em] left-0 h-6 w-6 rounded-full bg-brand-100;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b6073' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+    background-size: 0.8rem;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  /* Numbered steps become teal circles. */
+  .prose-site ol {
+    counter-reset: step;
+    @apply space-y-4;
+  }
+  .prose-site ol > li {
+    counter-increment: step;
+    @apply relative pl-12;
+  }
+  .prose-site ol > li::before {
+    content: counter(step);
+    @apply absolute top-0 left-0 flex h-8 w-8 items-center justify-center rounded-full bg-brand-700 font-display text-sm font-bold text-white;
+  }
+  .prose-site a {
+    @apply font-semibold text-brand-700 underline decoration-brand-200 decoration-2 underline-offset-4 hover:decoration-brand-700;
+  }
+  .prose-site strong {
+    @apply font-semibold text-title;
+  }
+}

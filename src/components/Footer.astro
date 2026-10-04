@@ -1,0 +1,188 @@
+---
+/*
+ * Site footer. Desktop: brand column and three link columns. Phones: a
+ * condensed version with the logo, social icons, tap-to-call and address
+ * cards, and the link groups folded into two disclosures.
+ */
+import { Image } from 'astro:assets';
+import { site, telHref, bookingHref } from '../config/site';
+import { getServices } from '../i18n/content';
+import { localeFromUrl, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import Icon from './Icon.astro';
+import SocialIcon from './SocialIcon.astro';
+import logo from '../assets/logo-eric-dental-centar-belo.png';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const services = await getServices(locale);
+const year = new Date().getFullYear();
+
+const practiceLinks = [
+  { href: pagePath(locale, 'home'), label: t.nav.home },
+  { href: pagePath(locale, 'about'), label: t.nav.about },
+  { href: pagePath(locale, 'services'), label: t.nav.allServices },
+  { href: pagePath(locale, 'blog'), label: t.nav.blog },
+  { href: pagePath(locale, 'contact'), label: t.nav.contact },
+  { href: bookingHref(locale), label: t.nav.booking },
+];
+
+const socialNames: Record<string, string> = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', linkedin: 'LinkedIn' };
+const socials = Object.entries(site.social)
+  .filter(([, url]) => url)
+  .map(([key, url]) => ({ key, url, label: socialNames[key] ?? key }));
+
+const weekdays = site.hours[0];
+const saturday = site.hours[1];
+const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
+const heading = 'font-display text-base font-semibold text-white';
+const link = 'text-[15px] text-white/70 transition-colors hover:text-white';
+const card = 'flex items-center gap-4 rounded-2xl bg-white/[0.06] p-4 ring-1 ring-white/10';
+const tile = 'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.625rem] bg-white/10 text-brand-100';
+---
+
+<footer class="relative isolate overflow-clip bg-brand-900 pb-24 text-white/70 lg:pb-0">
+  <div class="absolute -top-40 -left-40 -z-10 h-[30rem] w-[30rem] rounded-full bg-brand-500/25 blur-[130px]" aria-hidden="true"></div>
+  <div class="absolute -right-40 -bottom-40 -z-10 h-[28rem] w-[28rem] rounded-full bg-brand-600/30 blur-[130px]" aria-hidden="true"></div>
+  <div class="container-site pt-14 pb-10 lg:pt-20 lg:pb-14">
+    <div class="grid gap-10 lg:grid-cols-[1.25fr_1fr_0.75fr_1.4fr] lg:gap-12">
+      <!-- Brand -->
+      <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
+        <a href={pagePath(locale, 'home')} aria-label={`${site.name}, ${t.nav.homeAria}`}>
+          <Image src={logo} alt={site.name} width={360} height={169} class="h-20 w-auto lg:h-24" />
+        </a>
+        <p class="mt-5 max-w-sm leading-relaxed text-white/75">{t.footer.about}</p>
+        {
+          socials.length > 0 && (
+            <ul class="mt-6 flex gap-3" aria-label={t.common.social}>
+              {socials.map((s) => (
+                <li>
+                  <a
+                    href={s.url}
+                    rel="noopener"
+                    target="_blank"
+                    aria-label={t.common.socialLabel(site.name, s.label)}
+                    class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/15 transition hover:-translate-y-0.5 hover:bg-white hover:text-brand-800 motion-reduce:hover:translate-y-0"
+                  >
+                    <SocialIcon name={s.key} class="h-5 w-5" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+
+      <!-- Phones: tap-to-call, address and hours as cards -->
+      <div class="grid gap-3 lg:hidden">
+        <a href={telHref} class={card}>
+          <span class={tile}><Icon name="phone" class="h-5 w-5" /></span>
+          <span>
+            <span class="block text-xs font-semibold text-white/60">{t.common.callUs}</span>
+            <span class="block text-lg font-bold text-white">{site.phoneDisplayIntl}</span>
+          </span>
+        </a>
+        <a href={site.mapsUrl} rel="noopener" target="_blank" class={card}>
+          <span class={tile}><Icon name="map-pin" class="h-5 w-5" /></span>
+          <span>
+            <span class="block text-xs font-semibold text-white/60">{t.common.address}</span>
+            <span class="block font-semibold text-white">{site.street}, {site.postalCode} {site.city}</span>
+          </span>
+        </a>
+        <div class={card}>
+          <span class={tile}><Icon name="clock" class="h-5 w-5" /></span>
+          <span>
+            <span class="block text-xs font-semibold text-white/60">{t.common.hours}</span>
+            <span class="block font-semibold text-white">
+              {t.common.weekdaysShort} {weekdays.opens}–{weekdays.closes} · {t.common.saturdayShort} {saturday.opens}–{saturday.closes}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Phones: link groups folded away -->
+      <div class="divide-y divide-white/10 border-y border-white/10 lg:hidden">
+        <details class="group">
+          <summary class="flex cursor-pointer list-none items-center justify-between py-4 font-display font-semibold text-white [&::-webkit-details-marker]:hidden">
+            {t.nav.services} <Icon name="chevron-down" class="h-5 w-5 transition group-open:rotate-180" />
+          </summary>
+          <ul class="grid grid-cols-2 gap-x-4 gap-y-3 pb-5">
+            {services.map((s) => <li><a href={s.url} class={link}>{s.data.menuTitle ?? s.data.title}</a></li>)}
+          </ul>
+        </details>
+        <details class="group">
+          <summary class="flex cursor-pointer list-none items-center justify-between py-4 font-display font-semibold text-white [&::-webkit-details-marker]:hidden">
+            {t.footer.practice} <Icon name="chevron-down" class="h-5 w-5 transition group-open:rotate-180" />
+          </summary>
+          <ul class="grid grid-cols-2 gap-x-4 gap-y-3 pb-5">
+            {practiceLinks.map((l) => <li><a href={l.href} class={link}>{l.label}</a></li>)}
+          </ul>
+        </details>
+      </div>
+
+      <!-- Desktop columns -->
+      <nav class="hidden lg:block" aria-label={t.nav.services}>
+        <p class={heading}>{t.nav.services}</p>
+        <ul class="mt-5 space-y-3">
+          {services.map((s) => <li><a href={s.url} class={link}>{s.data.menuTitle ?? s.data.title}</a></li>)}
+        </ul>
+      </nav>
+      <nav class="hidden lg:block" aria-label={t.footer.practice}>
+        <p class={heading}>{t.footer.practice}</p>
+        <ul class="mt-5 space-y-3">
+          {practiceLinks.map((l) => <li><a href={l.href} class={link}>{l.label}</a></li>)}
+        </ul>
+      </nav>
+      <div class="hidden lg:block">
+        <p class={heading}>{t.nav.contact}</p>
+        <address class="mt-5 space-y-4 not-italic">
+          <a href={telHref} class="group flex items-start gap-3">
+            <Icon name="phone" class="mt-0.5 h-5 w-5 shrink-0 text-brand-200" />
+            <span>
+              <span class="block text-lg font-bold text-white group-hover:underline">{site.phoneDisplayIntl}</span>
+              <span class="text-sm text-white/60">{t.common.fastestWay}</span>
+            </span>
+          </a>
+          <a href={site.mapsUrl} rel="noopener" target="_blank" class={`${link} flex items-start gap-3`}>
+            <Icon name="map-pin" class="mt-0.5 h-5 w-5 shrink-0 text-brand-200" />
+            <span>{site.street}<br />{site.postalCode} {site.city}</span>
+          </a>
+          <a href={`mailto:${site.email}`} class={`${link} flex items-start gap-3 text-sm whitespace-nowrap`}>
+            <Icon name="mail" class="mt-0.5 h-5 w-5 shrink-0 text-brand-200" />{site.email}
+          </a>
+          <p class="flex items-start gap-3 text-[15px] text-white/70">
+            <Icon name="clock" class="mt-0.5 h-5 w-5 shrink-0 text-brand-200" />
+            <span>
+              {t.common.weekdaysShort} {weekdays.opens}–{weekdays.closes}<br />
+              {t.common.saturday} {saturday.opens}–{saturday.closes}<br />
+              {t.common.sundayClosed}
+            </span>
+          </p>
+        </address>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="border-t border-white/10">
+    <div class="container-site flex flex-col items-center gap-3 py-6 text-center text-sm text-white/60 sm:flex-row sm:justify-between sm:text-left">
+      <p>{t.footer.copyright(year, site.name)}</p>
+      <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+        <a href={pagePath(locale, 'privacy')} class="hover:text-white hover:underline">{t.nav.privacy}</a>
+        <span class="hidden text-white/25 sm:inline" aria-hidden="true">|</span>
+        <p>
+          {t.footer.madeBy}
+          <a href="https://stojanpetkovic.com" rel="noopener" target="_blank" class="font-semibold text-white hover:underline">
+            Stojan Petković
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Phones: call and book always one tap away. -->
+<div class="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-2 border-t border-card bg-white p-2 shadow-[0_-4px_16px_rgb(0_0_0/0.06)] lg:hidden">
+  <a href={telHref} class="btn-outline px-4!"><Icon name="phone" class="h-5 w-5" />{t.common.call}</a>
+  <a href={bookingHref(locale)} class="btn-primary px-3! text-[15px]">{t.common.book}</a>
+</div>

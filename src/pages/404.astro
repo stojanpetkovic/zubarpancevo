@@ -1,0 +1,39 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, telHref } from '../config/site';
+import { locales, localeMeta, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+
+// One 404 for every language: Serbian first, with ways into the other two.
+const t = useT('sr');
+---
+
+<Base title={t.meta.notFoundTitle} description={t.meta.notFoundDescription} noindex>
+  <section class="section-pad bg-tint-1">
+    <div class="container-site max-w-2xl text-center">
+      <p class="eyebrow">{t.notFound.eyebrow}</p>
+      <h1 class="mt-4 text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-tight">{t.notFound.title}</h1>
+      <p class="mt-5 text-lg text-muted">
+        {t.notFound.text}
+        <a href={telHref} class="font-semibold text-brand-800 underline">{site.phone}</a>.
+      </p>
+      <div class="mt-10 flex flex-wrap justify-center gap-3">
+        <a href={pagePath('sr', 'home')} class="btn-primary">{t.nav.home}</a>
+        <a href={pagePath('sr', 'services')} class="btn-outline">{t.nav.services}</a>
+      </div>
+      <ul class="mt-10 flex justify-center gap-6 text-sm font-semibold">
+        {
+          locales
+            .filter((l) => l !== 'sr')
+            .map((l) => (
+              <li>
+                <a href={pagePath(l, 'home')} lang={localeMeta[l].htmlLang} class="text-brand-700 hover:underline">
+                  {useT(l).notFound.title} → {localeMeta[l].label}
+                </a>
+              </li>
+            ))
+        }
+      </ul>
+    </div>
+  </section>
+</Base>

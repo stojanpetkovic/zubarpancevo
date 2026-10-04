@@ -1,0 +1,123 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Hours from '../components/Hours.astro';
+import Testimonials from '../components/Testimonials.astro';
+import CtaContact from '../components/CtaContact.astro';
+import Team from '../components/Team.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
+import { site, bookingHref } from '../config/site';
+import { localeFromUrl, pageAlternates, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import { breadcrumbSchema } from '../lib/schema';
+import heroImg from '../assets/ordinacija/ordinacija-pancevo.jpg';
+import hallway from '../assets/ordinacija/hodnik-ordinacije.jpg';
+import exam from '../assets/ordinacija/dr-milos-eric-pregled.jpg';
+import patient from '../assets/ordinacija/pacijent-u-stolici.jpg';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const a = t.about;
+const crumbs = [
+  { name: t.nav.home, path: pagePath(locale, 'home') },
+  { name: t.nav.about, path: pagePath(locale, 'about') },
+];
+
+---
+
+<Base
+  title={t.meta.aboutTitle}
+  description={t.meta.aboutDescription}
+  image={heroImg}
+  schema={[breadcrumbSchema(crumbs)]}
+  pageType="AboutPage"
+  alternates={pageAlternates('about')}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={a.eyebrow}
+    title={a.title}
+    highlight={a.highlight}
+    lead={a.lead(site.street)}
+    image={heroImg}
+    imageAlt={a.heroAlt}
+    trust
+  />
+
+  <section class="section-pad">
+    <div class="container-site grid gap-12 lg:grid-cols-[1.3fr_1fr]">
+      <div class="prose-site">
+        {a.body.map((p) => <p>{p}</p>)}
+        <h2>{a.h2a}</h2>
+        <p>{a.pa}</p>
+        <h2>{a.h2b}</h2>
+        <p>{a.pb}</p>
+      </div>
+      <aside class="space-y-6">
+        <div class="card bg-tint-2">
+          <h2 class="text-xl">{t.common.hours}</h2>
+          <Hours class="mt-4" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <Image src={hallway} alt={a.hallwayAlt} widths={[300, 600]} sizes="240px" class="aspect-[3/4] w-full rounded-[var(--radius-media)] object-cover shadow-[0_16px_40px_rgb(0_0_0/0.12)]" />
+          <Image src={patient} alt={a.patientAlt} widths={[300, 600]} sizes="240px" class="aspect-[3/4] w-full rounded-[var(--radius-media)] object-cover shadow-[0_16px_40px_rgb(0_0_0/0.12)]" />
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="bg-tint-2"><Team aboutLink={false} /></div>
+
+  <!-- How we work: the treatment photo beside what it stands for -->
+  <section class="section-pad">
+    <div class="container-site grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+      <div class="relative">
+        <div class="absolute -top-5 -left-5 h-40 w-40 rounded-[2rem] bg-brand-100 sm:h-52 sm:w-52" aria-hidden="true"></div>
+        <div class="relative overflow-hidden rounded-[var(--radius-media)] shadow-[0_24px_60px_rgb(0_0_0/0.18)]">
+          <Image
+            src={exam}
+            alt={a.examAlt}
+            widths={[480, 720, 960, 1280]}
+            sizes="(min-width: 1024px) 600px, 100vw"
+            class="aspect-[4/3] w-full object-cover object-[60%_center] lg:aspect-[5/4]"
+          />
+        </div>
+        <div class="absolute right-4 -bottom-6 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_16px_40px_rgb(0_0_0/0.14)] sm:right-6">
+          <span class="icon-tile h-11! w-11!"><Icon name="microscope" class="h-5 w-5" /></span>
+          <span>
+            <span class="block font-semibold text-title">{a.loupesTitle}</span>
+            <span class="block text-xs">{a.loupesText}</span>
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <p class="eyebrow">{a.howEyebrow}</p>
+        <h2 class="mt-4 text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight">
+          {a.howTitleA}<span class="text-brand-700">{a.howTitleB}</span>
+        </h2>
+        <p class="mt-5 text-lg leading-[1.7]">
+          {a.howLead}
+        </p>
+        <ul class="mt-8 grid gap-4 sm:grid-cols-2">
+          {
+            (['heart', 'microscope', 'shield-check', 'smile'] as IconName[]).map((icon, i) => ({ icon, t: a.howPoints[i] })).map((x) => (
+              <li class="flex items-center gap-3 font-semibold text-title">
+                <span class="icon-tile h-11! w-11!"><Icon name={x.icon as IconName} class="h-5 w-5" /></span>
+                {x.t}
+              </li>
+            ))
+          }
+        </ul>
+        <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+          <a href={bookingHref(locale)} class="btn-primary"><Icon name="calendar" class="h-5 w-5" /> {t.common.book}</a>
+          <a href={pagePath(locale, 'services')} class="btn-outline">{t.common.ourServices}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Testimonials />
+  <CtaContact />
+</Base>

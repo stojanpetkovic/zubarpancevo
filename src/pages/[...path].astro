@@ -1,0 +1,46 @@
+---
+/*
+ * Every page in every language. Serbian lives at the root, with the addresses
+ * the WordPress site had (/protetika/, /kontakt/), so search history carries
+ * over; English and German live under /en/ and /de/ with translated slugs.
+ */
+import { getAllEntries, entryAlternates, type Post, type Service } from '../i18n/content';
+import { locales, pages, localePath, type Alternates, type PageKey } from '../i18n/locales';
+import Home from '../views/Home.astro';
+import About from '../views/About.astro';
+import Contact from '../views/Contact.astro';
+import ServicesHub from '../views/ServicesHub.astro';
+import BlogIndex from '../views/BlogIndex.astro';
+import Thanks from '../views/Thanks.astro';
+import Privacy from '../views/Privacy.astro';
+import ServiceView from '../views/Service.astro';
+import PostView from '../views/Post.astro';
+
+type Props = { page: PageKey } | { service: Service; alternates: Alternates } | { post: Post; alternates: Alternates };
+
+export async function getStaticPaths() {
+  // getStaticPaths runs on its own, so its helpers live inside it.
+  // "/en/contact/" → "en/contact"; the Serbian home page is undefined.
+  const param = (path: string) => path.replace(/^\/|\/$/g, '') || undefined;
+  const { services, posts } = await getAllEntries();
+  const all = [...services, ...posts];
+  return [
+    ...locales.flatMap((locale) =>
+      (Object.keys(pages) as PageKey[]).map((page) => ({
+        params: { path: param(localePath(locale, pages[page][locale])) },
+        props: { page },
+      })),
+    ),
+    ...services.map((service) => ({ params: { path: param(service.url) }, props: { service, alternates: entryAlternates(all, service.key) } })),
+    ...posts.map((post) => ({ params: { path: param(post.url) }, props: { post, alternates: entryAlternates(all, post.key) } })),
+  ];
+}
+
+const props = Astro.props as Props;
+const views = { home: Home, about: About, contact: Contact, services: ServicesHub, blog: BlogIndex, thanks: Thanks, privacy: Privacy };
+const View = 'page' in props ? views[props.page] : undefined;
+---
+
+{View && <View />}
+{'service' in props && <ServiceView service={props.service} alternates={props.alternates} />}
+{'post' in props && <PostView post={props.post} alternates={props.alternates} />}

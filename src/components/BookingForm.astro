@@ -1,0 +1,162 @@
+---
+/*
+ * Appointment request form. Only name and phone are required; the service and
+ * preferred time are one tap each, and email and a message sit behind an
+ * optional disclosure, so the shortest path to sending is two fields and a
+ * button. Field names (ime, telefon, usluga, termin, email, poruka) stay the
+ * same in every language, so the lead admin always shows the same columns;
+ * scripts/lead-forms.ts sends them.
+ */
+import { site } from '../config/site';
+import { getServices } from '../i18n/content';
+import { localeFromUrl, localeMeta, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import Icon from './Icon.astro';
+
+interface Props {
+  /** Name the lead carries in the admin, e.g. "zakazivanje" or "usluga-protetika". */
+  name: string;
+  /** Service key to preselect. */
+  service?: string;
+}
+const { name, service } = Astro.props;
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
+
+const services = await getServices(locale);
+const preselected = services.find((s) => s.key === service)?.data.menuTitle;
+
+const base = t.form.options;
+// A service page preselects its own service, even when it is not in the short list.
+const options = [...base, ...(preselected && !base.includes(preselected) ? [preselected] : []), t.form.other];
+const checked = preselected ?? base[0];
+
+const uid = `f-${name}`;
+// key → label, so a link like ?usluga=protetika can preselect the service.
+const serviceLabels = Object.fromEntries(services.map((s) => [s.key, s.data.menuTitle ?? s.data.title]));
+const pill =
+  'flex cursor-pointer items-center rounded-full border border-card bg-white px-4 py-2.5 text-sm font-semibold text-title transition select-none hover:border-brand-500 has-[:checked]:border-brand-700 has-[:checked]:bg-brand-700 has-[:checked]:text-white has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand-500 has-[:focus-visible]:ring-offset-2';
+---
+
+<form
+  data-lead-form={name}
+  data-lead-ignore
+  data-service-labels={JSON.stringify(serviceLabels)}
+  data-thanks={pagePath(locale, 'thanks')}
+  data-msg-sending={t.form.sending}
+  data-msg-unavailable={t.form.errUnavailable(phone)}
+  data-msg-rate={t.form.errRate(phone)}
+  data-msg-generic={t.form.errGeneric(phone)}
+  class="flex flex-col gap-6"
+>
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label for={`${uid}-ime`} class="mb-2 block text-sm font-semibold text-title">{t.form.name} *</label>
+      <input id={`${uid}-ime`} name="ime" required autocomplete="name" placeholder={t.form.namePlaceholder} class="field h-13" />
+    </div>
+    <div>
+      <label for={`${uid}-tel`} class="mb-2 block text-sm font-semibold text-title">{t.form.phone} *</label>
+      <input id={`${uid}-tel`} name="telefon" type="tel" required autocomplete="tel" inputmode="tel" placeholder={t.form.phonePlaceholder} class="field h-13" />
+    </div>
+  </div>
+
+  <fieldset>
+    <legend class="mb-3 text-sm font-semibold text-title">{t.form.need}</legend>
+    <div class="flex flex-wrap gap-2">
+      {
+        options.map((o) => (
+          <label class={pill}>
+            <input type="radio" name="usluga" value={o} checked={o === checked} class="sr-only" />
+            {o}
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend class="mb-3 text-sm font-semibold text-title">{t.form.when}</legend>
+    <div class="flex flex-wrap gap-2">
+      {
+        t.form.times.map((time, i) => (
+          <label class={pill}>
+            <input type="radio" name="termin" value={time} checked={i === 0} class="sr-only" />
+            {time}
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <details class="group rounded-2xl border border-dashed border-card bg-tint-1">
+    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 text-sm font-semibold text-brand-700 [&::-webkit-details-marker]:hidden">
+      <span class="flex items-center gap-2"><Icon name="mail" class="h-4 w-4" /> {t.form.optional}</span>
+      <Icon name="chevron-down" class="h-5 w-5 transition group-open:rotate-180" />
+    </summary>
+    <div class="grid gap-4 px-5 pb-5">
+      <div>
+        <label for={`${uid}-email`} class="mb-2 block text-sm font-semibold text-title">{t.form.email}</label>
+        <input id={`${uid}-email`} name="email" type="email" autocomplete="email" class="field" />
+      </div>
+      <div>
+        <label for={`${uid}-poruka`} class="mb-2 block text-sm font-semibold text-title">{t.form.message}</label>
+        <textarea id={`${uid}-poruka`} name="poruka" rows="3" class="field" placeholder={t.form.messagePlaceholder}></textarea>
+      </div>
+    </div>
+  </details>
+
+  <!-- The language the request was sent in, so the practice knows how to reply. -->
+  <input type="hidden" name="jezik" value={localeMeta[locale].label} />
+  <!-- Filled in by the script below: the page on this site the visitor came from. -->
+  <input type="hidden" name="dosao_sa_stranice" />
+
+  <!-- Left empty by people; bots fill it in. -->
+  <input name="website_hp" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+  <p data-lead-error hidden class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-800" role="alert"></p>
+
+  <div>
+    <button type="submit" class="btn-primary h-14 w-full text-lg shadow-[0_12px_28px_rgb(43_96_115/0.35)] disabled:opacity-70">
+      {t.form.submit} <Icon name="arrow-right" class="h-5 w-5" />
+    </button>
+    <ul class="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs font-semibold text-muted">
+      <li class="flex items-center gap-1.5"><Icon name="check" class="h-4 w-4 text-brand-700" /> {t.form.noObligation}</li>
+      <li class="flex items-center gap-1.5"><Icon name="clock" class="h-4 w-4 text-brand-700" /> {t.form.underMinute}</li>
+      <li class="flex items-center gap-1.5"><Icon name="shield-check" class="h-4 w-4 text-brand-700" /> {t.form.dataSafe}</li>
+    </ul>
+    <p class="mt-4 text-center text-xs leading-relaxed">
+      {t.form.privacyA}<a href={pagePath(locale, 'privacy')} class="underline hover:text-brand-700">{t.form.privacyLink}</a>{t.form.privacyB}
+    </p>
+  </div>
+</form>
+
+<script>
+  // Preselect the service named in ?usluga=<key> and record the page on this
+  // site that sent the visitor here, so the lead shows where it started.
+  for (const form of document.querySelectorAll<HTMLFormElement>('form[data-service-labels]')) {
+    const labels = JSON.parse(form.dataset.serviceLabels || '{}') as Record<string, string>;
+    const label = labels[new URLSearchParams(location.search).get('usluga') ?? ''];
+    if (label) {
+      let input = [...form.querySelectorAll<HTMLInputElement>('input[name="usluga"]')].find((i) => i.value === label);
+      if (!input) {
+        // Not one of the short-list pills: add one before the last ("something else").
+        const other = [...form.querySelectorAll<HTMLInputElement>('input[name="usluga"]')].at(-1)!.closest('label')!;
+        const pill = other.cloneNode(true) as HTMLLabelElement;
+        input = pill.querySelector('input')!;
+        input.value = label;
+        pill.lastChild!.textContent = label;
+        other.before(pill);
+      }
+      input.checked = true;
+    }
+    try {
+      const from = document.referrer ? new URL(document.referrer) : null;
+      if (from && from.host === location.host && from.pathname !== location.pathname) {
+        form.querySelector<HTMLInputElement>('input[name="dosao_sa_stranice"]')!.value = from.pathname;
+      }
+    } catch {
+      // No usable referrer: the field stays empty.
+    }
+  }
+</script>

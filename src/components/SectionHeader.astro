@@ -1,0 +1,24 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  level?: 'h1' | 'h2';
+  align?: 'center' | 'left';
+  /** Light text, for sections on a dark background. */
+  inverted?: boolean;
+}
+const { eyebrow, title, subtitle, level: H = 'h2', align = 'center', inverted = false } = Astro.props;
+---
+
+<div class:list={['mb-12 md:mb-16', align === 'center' && 'mx-auto max-w-3xl text-center']}>
+  {eyebrow && <p class:list={['eyebrow mb-4', inverted && 'text-brand-100']}>{eyebrow}</p>}
+  <H class:list={['text-[clamp(1.75rem,1.1rem+2.6vw,2.5rem)] leading-tight', inverted && 'text-white']}>{title}</H>
+  {
+    subtitle && (
+      <p class:list={['mt-4 text-[clamp(1rem,0.9rem+0.4vw,1.125rem)] leading-[1.67]', inverted ? 'text-white/85' : 'text-muted', align === 'center' && 'mx-auto max-w-2xl']}>
+        {subtitle}
+      </p>
+    )
+  }
+</div>

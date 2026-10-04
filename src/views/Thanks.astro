@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, telHref } from '../config/site';
+import { localeFromUrl, pageAlternates, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+const phone = locale === 'sr' ? site.phone : site.phoneDisplayIntl;
+---
+
+<Base title={t.meta.thanksTitle} description={t.meta.thanksDescription} noindex alternates={pageAlternates('thanks')}>
+  <section class="section-pad bg-tint-1">
+    <div class="container-site max-w-2xl text-center">
+      <p class="eyebrow">{t.thanks.eyebrow}</p>
+      <h1 class="mt-4 text-[clamp(2rem,1.4rem+2.4vw,3rem)] leading-tight">{t.thanks.title}</h1>
+      <p class="mt-5 text-lg text-muted">{t.thanks.text}</p>
+      <p class="mt-3 text-muted">
+        {t.thanks.urgent}
+        <a href={telHref} class="font-semibold text-brand-800 underline">{phone}</a>.
+      </p>
+      <div class="mt-10 flex flex-wrap justify-center gap-3">
+        <a href={pagePath(locale, 'home')} class="btn-primary">{t.thanks.home}</a>
+        <a href={pagePath(locale, 'blog')} class="btn-outline">{t.thanks.advice}</a>
+      </div>
+    </div>
+  </section>
+</Base>

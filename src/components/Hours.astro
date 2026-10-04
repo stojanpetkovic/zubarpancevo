@@ -1,0 +1,23 @@
+---
+import { site } from '../config/site';
+import { localeFromUrl } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+const t = useT(localeFromUrl(Astro.url));
+const labels = [t.common.weekdays, t.common.saturday, t.common.sunday];
+---
+
+<dl class:list={['space-y-2', className]}>
+  {
+    site.hours.map((h, i) => (
+      <div class="flex justify-between gap-6">
+        <dt class="whitespace-nowrap">{labels[i]}</dt>
+        <dd class="font-semibold whitespace-nowrap text-title">{h.opens ? `${h.opens} – ${h.closes}` : t.common.closed}</dd>
+      </div>
+    ))
+  }
+</dl>

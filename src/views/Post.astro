@@ -1,0 +1,158 @@
+---
+import { Image, getImage } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ArticleAside from '../components/ArticleAside.astro';
+import CtaContact from '../components/CtaContact.astro';
+import Icon from '../components/Icon.astro';
+import ServiceIcon from '../components/ServiceIcon.astro';
+import { site } from '../config/site';
+import { breadcrumbSchema, postSchema } from '../lib/schema';
+import { getPosts, getServices, readingMinutes, type Post } from '../i18n/content';
+import { localeMeta, pagePath, type Alternates } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+import { getTeam } from '../config/team';
+
+interface Props {
+  post: Post;
+  alternates: Alternates;
+}
+const { post, alternates } = Astro.props;
+const locale = post.locale;
+const t = useT(locale);
+const path = post.url;
+const dateFmt = new Intl.DateTimeFormat(localeMeta[locale].dateLocale, { day: 'numeric', month: 'long', year: 'numeric' });
+const { Content, headings } = await render(post);
+const imageUrl = new URL((await getImage({ src: post.data.image, width: 1200, format: 'jpg' })).src, Astro.site).href;
+
+// Posts are written by the practice owner.
+const author = getTeam(locale).find((m) => m.id === 'milos')!;
+
+const services = await getServices(locale);
+// In the order the post lists them; the first one is the post's category.
+const relatedServices = post.data.related.map((key) => services.find((s) => s.key === key)).filter((s) => s !== undefined);
+const category = relatedServices[0];
+const otherPosts = (await getPosts(locale)).filter((p) => p.key !== post.key).slice(0, 3);
+const crumbs = [
+  { name: t.nav.home, path: pagePath(locale, 'home') },
+  { name: t.nav.blog, path: pagePath(locale, 'blog') },
+  { name: post.data.title, path },
+];
+---
+
+<Base
+  alternates={alternates}
+  pageType="MedicalWebPage"
+  article={{ published: post.data.date, modified: post.data.updated, section: category?.data.menuTitle }}
+  title={post.data.seoTitle}
+  description={post.data.description}
+  image={post.data.image}
+  type="article"
+  schema={[
+    postSchema({
+      title: post.data.title,
+      description: post.data.description,
+      path,
+      imageUrl,
+      date: post.data.date,
+      updated: post.data.updated,
+      locale,
+      section: category?.data.menuTitle,
+      author: author.id,
+    }),
+    breadcrumbSchema(crumbs),
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    icon={category?.data.icon}
+    eyebrow={category ? `${t.common.blog} · ${category.data.menuTitle}` : t.common.blog}
+    title={post.data.title}
+    lead={post.data.description}
+    image={post.data.image}
+    imageAlt={post.data.imageAlt}
+  >
+    <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-card pt-6 text-sm">
+      <a href={pagePath(locale, 'about')} rel="author" class="group flex items-center gap-3">
+        <Image src={author.img} alt="" width={88} height={88} class="h-11 w-11 rounded-full object-cover object-top shadow-sm ring-2 ring-white" />
+        <span>
+          <span class="block font-semibold text-title group-hover:text-brand-700 group-hover:underline">{author.name}</span>
+          <span class="block text-xs">{t.common.owner}, {site.name}</span>
+        </span>
+      </a>
+      <span class="flex items-center gap-2">
+        <Icon name="calendar" class="h-4 w-4 text-brand-700" />
+        <time datetime={(post.data.updated ?? post.data.date).toISOString()}>
+          {post.data.updated ? `${t.common.updated} ` : ''}{dateFmt.format(post.data.updated ?? post.data.date)}
+        </time>
+      </span>
+      <span class="flex items-center gap-2">
+        <Icon name="clock" class="h-4 w-4 text-brand-700" /> {t.common.minRead(readingMinutes(post.body))}
+      </span>
+    </div>
+  </PageHero>
+
+  <div class="container-site section-pad grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
+    <div>
+      <article class="prose-site">
+        <Content />
+      </article>
+
+      {relatedServices.length > 0 && (
+        <div class="mt-14">
+          <p class="font-display text-xl font-semibold text-title">{t.blog.related}</p>
+          <ul class="mt-5 grid gap-4 sm:grid-cols-2">
+            {relatedServices.map((s) => (
+              <li class="card group relative flex items-center gap-4 p-5! transition hover:shadow-md">
+                <span class="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-tint-2">
+                  <ServiceIcon name={s.data.icon} class="h-10 w-10" />
+                </span>
+                <span class="flex-1">
+                  <a href={s.url} class="font-semibold text-title after:absolute after:inset-0 group-hover:text-brand-700">
+                    {s.data.menuTitle ?? s.data.title}
+                  </a>
+                  <span class="mt-0.5 block text-sm">{t.blog.relatedLink}</span>
+                </span>
+                <Icon name="arrow-right" class="h-5 w-5 text-brand-700 transition group-hover:translate-x-1" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+    <ArticleAside headings={headings} />
+  </div>
+
+  <section class="section-pad bg-tint-2">
+    <div class="container-site">
+      <div class="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p class="eyebrow">{t.common.blog}</p>
+          <h2 class="mt-3 text-[clamp(1.6rem,1.1rem+2vw,2.25rem)]">{t.blog.more}</h2>
+        </div>
+        <a href={pagePath(locale, 'blog')} class="btn-outline self-start bg-white md:self-auto">{t.common.allPosts} <Icon name="arrow-right" class="h-4 w-4" /></a>
+      </div>
+      <ul class="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+        {otherPosts.map((p) => (
+          <li class="group relative flex flex-col overflow-hidden rounded-2xl border border-card bg-white transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgb(0_0_0/0.1)] motion-reduce:hover:translate-y-0 sm:rounded-[var(--radius-card)]">
+            <div class="overflow-hidden">
+              <Image src={p.data.image} alt="" widths={[240, 400, 560]} sizes="(min-width: 1024px) 360px, 50vw" class="aspect-[16/10] w-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:group-hover:scale-100" />
+            </div>
+            <div class="flex flex-1 flex-col gap-2 p-3.5 sm:p-6">
+              <p class="flex items-center gap-2 text-[11px] font-semibold sm:text-xs">
+                <Icon name="clock" class="h-3.5 w-3.5 text-brand-700" /> {t.common.minRead(readingMinutes(p.body))}
+              </p>
+              <h3 class="text-[15px] leading-snug sm:text-lg">
+                <a href={p.url} class="after:absolute after:inset-0 group-hover:text-brand-700">{p.data.title}</a>
+              </h3>
+              <p class="hidden text-sm leading-relaxed sm:line-clamp-2">{p.data.description}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <CtaContact service={category?.key} />
+</Base>
