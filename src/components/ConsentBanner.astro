@@ -1,0 +1,111 @@
+---
+/*
+ * Cookie notice for Google Analytics. GA is the only thing on the site that
+ * sets cookies, so it loads only after the visitor accepts; until then, and
+ * for anyone who declines or has JavaScript off, no request goes to Google.
+ * The choice is kept in localStorage and can be changed from the
+ * "Cookie settings" link in the footer.
+ */
+import { site } from '../config/site';
+import { localeFromUrl, pagePath } from '../i18n/locales';
+import { useT } from '../i18n/ui';
+
+const locale = localeFromUrl(Astro.url);
+const t = useT(locale);
+---
+
+<section
+  class="fixed inset-x-3 bottom-20 z-50 mx-auto max-w-xl rounded-2xl bg-white p-5 shadow-[0_20px_60px_rgb(24_56_67/0.25)] ring-1 ring-card sm:inset-x-6 lg:bottom-6"
+  aria-label={t.consent.label}
+  data-consent
+  data-ga={site.googleAnalyticsId}
+  hidden
+>
+  <p class="text-[15px] leading-relaxed">
+    {t.consent.text}
+    <a href={pagePath(locale, 'privacy')} class="font-semibold text-brand-700 underline">{t.consent.more}</a>
+  </p>
+  <div class="mt-4 flex flex-wrap gap-3">
+    <button type="button" class="btn-primary h-11 flex-1 px-6!" data-consent-choice="granted">{t.consent.accept}</button>
+    <button type="button" class="btn-outline h-11 flex-1 px-6!" data-consent-choice="denied">{t.consent.decline}</button>
+  </div>
+</section>
+
+<script>
+  const KEY = 'analytics-consent';
+  const banner = document.querySelector<HTMLElement>('[data-consent]');
+  const id = banner?.dataset.ga;
+
+  const read = () => {
+    try {
+      return localStorage.getItem(KEY);
+    } catch {
+      return null;
+    }
+  };
+  const save = (value: string) => {
+    try {
+      localStorage.setItem(KEY, value);
+    } catch {
+      /* private mode: the choice lasts for this page only */
+    }
+  };
+
+  function loadAnalytics() {
+    const w = window as typeof window & { dataLayer?: unknown[]; gtag?: (...args: unknown[]) => void };
+    if (!id || w.gtag) return;
+    w.dataLayer = w.dataLayer || [];
+    // gtag must push the arguments object itself, as Google's snippet does.
+    w.gtag = function () {
+      // eslint-disable-next-line prefer-rest-params
+      w.dataLayer!.push(arguments);
+    };
+    w.gtag('js', new Date());
+    w.gtag('config', id);
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+    document.head.append(script);
+  }
+
+  /** On withdrawal, remove the cookies GA has already set (_ga, _ga_<id>). */
+  function clearAnalyticsCookies() {
+    const domain = location.hostname.replace(/^www\./, '');
+    for (const name of document.cookie.split(';').map((c) => c.split('=')[0].trim())) {
+      if (!name.startsWith('_ga')) continue;
+      for (const d of ['', `;domain=${domain}`, `;domain=.${domain}`]) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/${d}`;
+      }
+    }
+  }
+
+  if (banner) {
+    const choice = read();
+    if (choice === 'granted') loadAnalytics();
+    else if (choice === null) banner.hidden = false;
+
+    banner.addEventListener('click', (e) => {
+      const button = (e.target as HTMLElement).closest<HTMLElement>('[data-consent-choice]');
+      if (!button) return;
+      const value = button.dataset.consentChoice!;
+      const before = read();
+      save(value);
+      banner.hidden = true;
+      if (value === 'granted') loadAnalytics();
+      else if (before === 'granted') {
+        // Switch GA off first: it rewrites its cookie when the page unloads.
+        (window as unknown as Record<string, boolean>)[`ga-disable-${id}`] = true;
+        clearAnalyticsCookies();
+        // GA keeps running on a page where it already loaded; a reload stops it.
+        location.reload();
+      }
+    });
+
+    for (const open of document.querySelectorAll('[data-consent-open]')) {
+      open.addEventListener('click', () => {
+        banner.hidden = false;
+        banner.querySelector<HTMLElement>('[data-consent-choice]')?.focus();
+      });
+    }
+  }
+</script>

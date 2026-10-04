@@ -346,10 +346,18 @@ const sr = {
     copyright: (year: number, name: string) => `© ${year} ${name}, Pančevo. Sva prava zadržana.`,
     madeBy: 'Izrada sajta:',
   },
+  consent: {
+    label: 'Kolačići',
+    text: 'Uz vašu dozvolu koristimo Google Analytics da vidimo kako se sajt koristi. Bez dozvole ne postavljamo nikakve kolačiće.',
+    accept: 'Prihvatam',
+    decline: 'Ne, hvala',
+    more: 'Više o tome',
+    settings: 'Podešavanja kolačića',
+  },
   privacy: {
     title: 'Politika privatnosti',
     updated: (d: string) => `Poslednja izmena: ${d}`,
-    date: '3. oktobar 2026.',
+    date: '4. oktobar 2026.',
     intro: (name: string, street: string, postal: string, city: string) =>
       `Ova politika objašnjava koje podatke ${name} (${street}, ${postal} ${city}) prikuplja preko sajta zubarpancevo.com i kako ih koristi.`,
     sections: [
@@ -364,6 +372,13 @@ const sr = {
         h: 'Statistika poseta',
         p: [
           'Brojimo posete stranicama, klikove na broj telefona i email adresu i opšti izvor posete (na primer Google pretraga ili oglas). Posete se broje anonimno, bez kolačića (cookies) i bez čuvanja vaše IP adrese.',
+        ],
+      },
+      {
+        h: 'Google Analytics',
+        p: [
+          'Ako to dozvolite u obaveštenju o kolačićima, koristimo Google Analytics (Google Ireland Limited) da vidimo koliko ljudi posećuje sajt, koje stranice čitaju i odakle dolaze. Google Analytics pri tome postavlja kolačiće i obrađuje podatke o vašem uređaju i poseti, koje Google može preneti i van Srbije i EU.',
+          'Bez vaše dozvole Google Analytics se uopšte ne učitava. Odluku možete promeniti bilo kada preko linka „Podešavanja kolačića” na dnu svake stranice.',
         ],
       },
       {
@@ -719,10 +734,18 @@ const en: Dict = {
     copyright: (year: number, name: string) => `© ${year} ${name}, Pančevo. All rights reserved.`,
     madeBy: 'Website by',
   },
+  consent: {
+    label: 'Cookies',
+    text: 'With your permission we use Google Analytics to see how the site is used. Without it, we set no cookies at all.',
+    accept: 'Accept',
+    decline: 'No, thanks',
+    more: 'Learn more',
+    settings: 'Cookie settings',
+  },
   privacy: {
     title: 'Privacy policy',
     updated: (d: string) => `Last updated: ${d}`,
-    date: '3 October 2026',
+    date: '4 October 2026',
     intro: (name: string, street: string, postal: string, city: string) =>
       `This policy explains what information ${name} (${street}, ${postal} ${city}, Serbia) collects through zubarpancevo.com and how it is used.`,
     sections: [
@@ -737,6 +760,13 @@ const en: Dict = {
         h: 'Visit statistics',
         p: [
           'We count page views, clicks on our phone number and email address, and the general source of a visit (for example a Google search or an ad). Visits are counted anonymously, without cookies and without storing your IP address.',
+        ],
+      },
+      {
+        h: 'Google Analytics',
+        p: [
+          'If you allow it in the cookie notice, we use Google Analytics (Google Ireland Limited) to see how many people visit the site, which pages they read and where they come from. Google Analytics sets cookies and processes data about your device and visit, which Google may transfer outside Serbia and the EU.',
+          'Without your permission, Google Analytics does not load at all. You can change your choice at any time through the “Cookie settings” link at the bottom of every page.',
         ],
       },
       {
@@ -1090,10 +1120,18 @@ const de: Dict = {
     copyright: (year: number, name: string) => `© ${year} ${name}, Pančevo. Alle Rechte vorbehalten.`,
     madeBy: 'Website:',
   },
+  consent: {
+    label: 'Cookies',
+    text: 'Mit Ihrer Erlaubnis nutzen wir Google Analytics, um zu sehen, wie die Website genutzt wird. Ohne Erlaubnis setzen wir keinerlei Cookies.',
+    accept: 'Akzeptieren',
+    decline: 'Nein, danke',
+    more: 'Mehr dazu',
+    settings: 'Cookie-Einstellungen',
+  },
   privacy: {
     title: 'Datenschutzerklärung',
     updated: (d: string) => `Zuletzt aktualisiert: ${d}`,
-    date: '3. Oktober 2026',
+    date: '4. Oktober 2026',
     intro: (name: string, street: string, postal: string, city: string) =>
       `Diese Erklärung beschreibt, welche Daten ${name} (${street}, ${postal} ${city}, Serbien) über zubarpancevo.com erhebt und wie sie verwendet werden.`,
     sections: [
@@ -1108,6 +1146,13 @@ const de: Dict = {
         h: 'Besucherstatistik',
         p: [
           'Wir zählen Seitenaufrufe, Klicks auf unsere Telefonnummer und E-Mail-Adresse sowie die allgemeine Herkunft eines Besuchs (zum Beispiel eine Google-Suche oder eine Anzeige). Besuche werden anonym gezählt, ohne Cookies und ohne Speicherung Ihrer IP-Adresse.',
+        ],
+      },
+      {
+        h: 'Google Analytics',
+        p: [
+          'Wenn Sie es im Cookie-Hinweis erlauben, nutzen wir Google Analytics (Google Ireland Limited), um zu sehen, wie viele Menschen die Website besuchen, welche Seiten sie lesen und woher sie kommen. Google Analytics setzt dabei Cookies und verarbeitet Daten über Ihr Gerät und Ihren Besuch, die Google auch außerhalb Serbiens und der EU übermitteln kann.',
+          'Ohne Ihre Erlaubnis wird Google Analytics gar nicht geladen. Sie können Ihre Entscheidung jederzeit über den Link „Cookie-Einstellungen“ unten auf jeder Seite ändern.',
         ],
       },
       {

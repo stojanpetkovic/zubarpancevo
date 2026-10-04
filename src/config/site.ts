@@ -61,6 +61,13 @@ export const site = {
    * Forms and visit tracking stay off until it is filled in.
    */
   leadsSiteKey: '855c12fc4e319fc1f537cc172a261178',
+  /**
+   * Google Analytics 4. Loads only after the visitor accepts the cookie
+   * notice (components/ConsentBanner.astro); empty turns it off entirely.
+   */
+  googleAnalyticsId: 'G-EGHJWQ8424',
+  /** Google Search Console ownership check (HTML tag method). */
+  googleSiteVerification: 'SfZa6cumn08TQ7T7xaDewxzhoaqjLpwjv6Mz8zZ5ZhI',
 } as const;
 
 export const telHref = `tel:${site.phoneE164}`;

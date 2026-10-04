@@ -123,6 +123,7 @@ const robots = noindex ? 'noindex, follow' : 'index, follow, max-image-preview:l
 <meta name="geo.position" content={`${site.geo.latitude};${site.geo.longitude}`} />
 <meta name="ICBM" content={`${site.geo.latitude}, ${site.geo.longitude}`} />
 <meta name="theme-color" content="#2b6073" />
+{site.googleSiteVerification && <meta name="google-site-verification" content={site.googleSiteVerification} />}
 
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" href="/favicon-192.png" type="image/png" sizes="192x192" />
