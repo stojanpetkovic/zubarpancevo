@@ -2,7 +2,7 @@ import { site } from '../config/site';
 
 /*
  * Every form marked data-lead-form="name" posts its fields to the lead admin
- * (stojanpetkovic.com/api/leads) and, once the lead is stored, goes to the
+ * (webtano.com/api/leads) and, once the lead is stored, goes to the
  * thank-you page. The admin emails the inquiry, so the site needs no mail
  * server of its own.
  *
@@ -12,7 +12,7 @@ import { site } from '../config/site';
  * (components/BookingForm.astro).
  */
 
-const ENDPOINT = 'https://stojanpetkovic.com/api/leads';
+const ENDPOINT = 'https://webtano.com/api/leads';
 
 function attribution(): { utm?: Record<string, string>; referrer?: string } {
   try {
