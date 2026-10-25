@@ -57,7 +57,7 @@ export const site = {
     url: 'https://www.doktor.rs/mapa/Pancevo/Eric-Dental-Centar/5ce40b3df3',
   },
   /**
-   * Lead admin key (stojanpetkovic.com/admin → Sites, domain zubarpancevo.com).
+   * Lead admin key (webtano.com/admin → Sites, domain zubarpancevo.com).
    * Forms and visit tracking stay off until it is filled in.
    */
   leadsSiteKey: '855c12fc4e319fc1f537cc172a261178',
